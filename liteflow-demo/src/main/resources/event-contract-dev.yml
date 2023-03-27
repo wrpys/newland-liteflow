@@ -1,0 +1,8 @@
+slf:
+  event-contract:
+    - expression: "#{eventType=='zaixian'}"
+      contractName: zaixian
+      version: 1.0.0
+    - expression: "#{eventType=='lixian'}"
+      contractName: lixian
+      version: 1.0.0

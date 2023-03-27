@@ -1,0 +1,16 @@
+key: value
+
+slf:
+  event-contract:
+    - expression: "#{eventType=='zaixian'}"
+      contractName: zaixian
+      version: 1.0.4
+    - expression: "#{eventType=='lixian'}"
+      contractName: lixian
+      version: 1.0.0
+    - expression: "#{eventType=='yichang'}"
+      contractName: yichang
+      version: 1.0.0
+
+liteflow:
+  rule-source: config/flow.el.xml;config/flow.custom.xml

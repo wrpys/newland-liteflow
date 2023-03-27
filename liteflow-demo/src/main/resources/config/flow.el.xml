@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow name="flow.el" version="1.0.0">
+    <chain name="chain1">
+        THEN(a, b, c);
+    </chain>
+    <chain name="chain2">
+        THEN(b, a, c);
+    </chain>
+    <chain name="chain3">
+        THEN(c, a, b);
+    </chain>
+    <chain name="chain4">
+        IF(x, a, b);
+    </chain>
+    <chain name="chain5">
+        THEN(chain1, chain2);
+    </chain>
+    <chain name="chain6">
+        THEN($end);
+    </chain>
+</flow>

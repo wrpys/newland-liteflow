@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: liteflow-demo
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      config:
+        server-addr: 10.1.18.214:8848
+        namespace: a187b275-65be-4e47-ab35-656515dca154
+        file-extension: yml
+#        shared-configs:
+#          - common-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}

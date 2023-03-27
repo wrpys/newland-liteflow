@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow name="yichangdan" version="1.0.0" comment="异常单">
+    <chain name="mainChain" retryCount="5">
+        THEN(IF("#{param.yData==null}", $func.event('yaosuqiuqu')
+        ).ELIF("#{param.pData==null}", $func.event('pijia')
+        ).ELIF("#{param.kData==null}", $func.event('koukuan')
+        ).ELSE($func.event('chachong')));
+    </chain>
+    <chain name="chachong" version="1.0.0">
+        THEN(IF("#{result.code==1}", $func.event('yaosuqiuqu'), $end));
+    </chain>
+    <chain name="yaosuqiuqu" version="1.0.0">
+        THEN(IF("#{result.code==1}", $func.event('pijia'), $end));
+    </chain>
+    <chain name="pijia" version="1.0.0">
+        THEN(IF("#{result.code==1}", $func.event('koukuan'), $end));
+    </chain>
+    <chain name="koukuan" version="1.0.0">
+        THEN($end);
+    </chain>
+</flow>

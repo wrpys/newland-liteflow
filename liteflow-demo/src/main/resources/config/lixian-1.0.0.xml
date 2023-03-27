@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow name="lixian" version="1.0.0" comment="在线话单">
+    <chain name="mainChain" retryCount="5">
+        THEN($func.event('chachong'));
+    </chain>
+    <chain name="chachong" version="1.0.0">
+        THEN(IF("#{result.code==1}", $func.event('yaosuqiuqu'), $end));
+    </chain>
+    <chain name="yaosuqiuqu" version="1.0.0">
+        THEN(IF("#{result.code==1}", $func.event('pijia'), $end));
+    </chain>
+    <chain name="pijia" version="1.0.0">
+        THEN(IF("#{result.code==1}", $func.event('koukuan'), $end));
+    </chain>
+    <chain name="koukuan" version="1.0.0">
+        THEN($end);
+    </chain>
+</flow>
