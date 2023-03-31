@@ -59,6 +59,10 @@ public class LiteFlowChainELBuilder {
         EXPRESS_RUNNER.addFunction(ChainConstant.PRE, new PreOperator());
         EXPRESS_RUNNER.addFunction(ChainConstant.FINALLY, new FinallyOperator());
         EXPRESS_RUNNER.addFunction(ChainConstant.IF, new IfOperator());
+
+        EXPRESS_RUNNER.addFunction(ChainConstant.INVOKE, new InvokeOperator());
+        EXPRESS_RUNNER.addFunction(ChainConstant.END, new EndOperator());
+
         EXPRESS_RUNNER.addFunctionAndClassMethod(ChainConstant.ELSE, Object.class, new ElseOperator());
         EXPRESS_RUNNER.addFunctionAndClassMethod(ChainConstant.ELIF, Object.class, new ElifOperator());
         EXPRESS_RUNNER.addFunctionAndClassMethod(ChainConstant.TO, Object.class, new ToOperator());

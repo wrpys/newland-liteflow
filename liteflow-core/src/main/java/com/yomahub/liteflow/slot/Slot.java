@@ -49,6 +49,9 @@ public class Slot{
 
 	private static final String IF_NODE_PREFIX = "_if_";
 
+	private static final String INVOKE_PREFIX = "_invoke_";
+	private static final String END_PREFIX = "_end_";
+
 	private static final String FOR_PREFIX = "_for_";
 
 	private static final String WHILE_PREFIX = "_while_";
@@ -223,6 +226,22 @@ public class Slot{
 
 	public boolean getIfResult(String key){
 		return getThreadMetaData(IF_NODE_PREFIX + key);
+	}
+
+	public void setInvokeResult(String key, boolean result){
+		putThreadMetaDataMap(INVOKE_PREFIX + key, result);
+	}
+
+	public boolean getInvokeResult(String key){
+		return getThreadMetaData(INVOKE_PREFIX + key);
+	}
+
+	public void setEndResult(String key, boolean result){
+		putThreadMetaDataMap(END_PREFIX + key, result);
+	}
+
+	public boolean getEndResult(String key){
+		return getThreadMetaData(END_PREFIX + key);
 	}
 
 	public void setForResult(String key, int forCount){

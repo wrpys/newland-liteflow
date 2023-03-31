@@ -9,6 +9,11 @@ public enum ConditionTypeEnum {
     TYPE_SWITCH("switch", "switch"),
 
     TYPE_IF("if", "if"),
+
+    TYPE_INVOKE("invoke", "invoke"),
+
+    TYPE_END("end", "end"),
+
     TYPE_PRE("pre","pre"),
     TYPE_FINALLY("finally","finally"),
 

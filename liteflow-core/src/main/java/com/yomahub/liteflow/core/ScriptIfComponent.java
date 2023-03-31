@@ -11,7 +11,7 @@ import java.util.Map;
  * @since 2.8.5
  */
 public class ScriptIfComponent extends NodeIfComponent implements ScriptComponent{
-    @Override
+//    @Override
     public boolean processIf() throws Exception {
         ScriptExecuteWrap wrap = new ScriptExecuteWrap();
         wrap.setCurrChainId(this.getCurrChainId());
@@ -25,5 +25,10 @@ public class ScriptIfComponent extends NodeIfComponent implements ScriptComponen
     @Override
     public void loadScript(String script) {
         ScriptExecutorFactory.loadInstance().getScriptExecutor().load(getNodeId(), script);
+    }
+
+    @Override
+    public String getExpr() throws Exception {
+        return null;
     }
 }

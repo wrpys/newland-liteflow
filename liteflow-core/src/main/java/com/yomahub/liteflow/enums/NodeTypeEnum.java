@@ -29,6 +29,10 @@ public enum NodeTypeEnum {
 
 	IF("if", "条件", false, NodeIfComponent.class),
 
+	INVOKE("invoke", "函数调用", false, NodeInvokeComponent.class),
+
+	END("end", "结束处理", false, NodeEndComponent.class),
+
 	FOR("for", "循环次数", false, NodeForComponent.class),
 
 	WHILE("while", "循环条件", false, NodeWhileComponent.class),

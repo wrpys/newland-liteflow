@@ -41,6 +41,10 @@ public interface ChainConstant {
 
     String IF = "IF";
 
+    String INVOKE = "INVOKE";
+
+    String END = "END";
+
     String ELSE = "ELSE";
 
     String ELIF = "ELIF";
