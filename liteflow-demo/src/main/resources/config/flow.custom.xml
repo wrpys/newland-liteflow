@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<flow name="flow.custom" version="1.0.0">
-    <chain name="custom">
-        IF(x, a).ELSE(b);
-    </chain>
-</flow>

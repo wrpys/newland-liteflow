@@ -15,7 +15,4 @@
     <chain name="chain5">
         THEN(chain1, chain2);
     </chain>
-    <chain name="chain6">
-        THEN($end);
-    </chain>
 </flow>
