@@ -2,14 +2,16 @@ package com.yomahub.liteflow.builder.el.operator;
 
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.util.StrUtil;
-import com.ql.util.express.exception.QLException;
 import com.yomahub.liteflow.builder.el.operator.base.BaseOperator;
 import com.yomahub.liteflow.builder.el.operator.base.OperatorHelper;
 import com.yomahub.liteflow.core.NodeIfComponent;
 import com.yomahub.liteflow.enums.NodeTypeEnum;
+import com.yomahub.liteflow.exception.ELParseException;
 import com.yomahub.liteflow.flow.element.Executable;
 import com.yomahub.liteflow.flow.element.Node;
 import com.yomahub.liteflow.flow.element.condition.IfCondition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * EL规则中的IF的操作符
@@ -19,14 +21,17 @@ import com.yomahub.liteflow.flow.element.condition.IfCondition;
  */
 public class IfOperator extends BaseOperator<IfCondition> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(IfOperator.class);
+
     @Override
     public IfCondition build(Object[] objects) throws Exception {
         OperatorHelper.checkObjectSizeEq(objects, 2, 3);
 
         //解析第一个参数
         final String expr = OperatorHelper.convert(objects[0], String.class);
-        if (!expr.startsWith("input") && !expr.startsWith("output")) {
-            throw new RuntimeException("Spring EL表达式有误，使用不存在的变量！");
+        if (!expr.startsWith("input") || !expr.startsWith("output")) {
+            LOGGER.error("Spring EL表达式[{}]有误，使用不存在的变量！", expr);
+            throw new ELParseException("Spring EL表达式[" + expr + "]有误，使用不存在的变量！");
         }
 
         Node node = new Node();
