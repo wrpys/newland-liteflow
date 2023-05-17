@@ -1,6 +1,7 @@
 package com.newland.sf;
 
 import com.newland.sf.config.EventContractConfig;
+import com.newland.sf.model.Cdr;
 import com.newland.sf.queue.EventQueue;
 import com.newland.sf.utils.NacosParserHelper;
 import com.yomahub.liteflow.core.FlowExecutor;
@@ -71,6 +72,18 @@ public class SpringCloudEventsApplication {
 
 
         return response.getRequestId();
+    }
+
+    @GetMapping("test2")
+    public String execute2(@RequestParam("chainId") String chainId) {
+
+        ContractContext<Cdr> contractContext = new ContractContext<>();
+        Cdr cdr = new Cdr();
+        cdr.setContractId(chainId);
+        contractContext.setInput(cdr);
+
+        LiteflowResponse response = flowExecutor.execute2Resp(chainId, null, contractContext);
+        return response.getMessage();
     }
 
     @GetMapping("custom")

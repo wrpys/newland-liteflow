@@ -15,6 +15,12 @@ public interface ChainConstant {
 
     String NODE = "node";
 
+    String FUNS = "funs";
+
+    String FUN = "fun";
+
+    String VERSION = "version";
+
     String ID = "id";
 
     String _CLASS = "class";

@@ -13,6 +13,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.yomahub.liteflow.core.ComponentInitializer;
 import com.yomahub.liteflow.core.NodeComponent;
+import com.yomahub.liteflow.core.NodeFunComponent;
 import com.yomahub.liteflow.enums.NodeTypeEnum;
 import com.yomahub.liteflow.exception.ComponentCannotRegisterException;
 import com.yomahub.liteflow.exception.NullNodeTypeException;
@@ -125,6 +126,57 @@ public class FlowBus {
 //    public static void addScriptNode(String nodeId, String name, NodeTypeEnum nodeType, String script) {
 //        addNode(nodeId, name, nodeType, ScriptComponent.ScriptComponentClassMap.get(nodeType), script);
 //    }
+
+        /**
+     * 添加函数 node
+     *
+     * @param nodeId   节点id
+     * @param name     节点名称
+     * @param nodeType 节点类型
+     * @param version  版本
+     */
+    public static void addFunNode(String nodeId, String name, NodeTypeEnum nodeType, String version) {
+        try {
+            List<NodeComponent> cmpInstances = new ArrayList<>();
+            NodeComponent instance = new NodeFunComponent() {
+                @Override
+                public String getFunName() {
+                    return name;
+                }
+
+                @Override
+                public String getFunVersion() {
+                    return version;
+                }
+            };
+
+            cmpInstances.add(instance);
+            //进行初始化component
+            cmpInstances = cmpInstances.stream()
+                    .map(cmpInstance -> ComponentInitializer.loadInstance().initComponent(
+                            cmpInstance,
+                            nodeType,
+                            name,
+                            cmpInstance.getNodeId() == null ? nodeId : cmpInstance.getNodeId())
+                    ).collect(Collectors.toList());
+
+            //初始化Node，把component放到Node里去
+            List<Node> nodes = cmpInstances.stream().map(Node::new).collect(Collectors.toList());
+
+
+            for (int i = 0; i < nodes.size(); i++) {
+                Node node = nodes.get(i);
+                NodeComponent cmpInstance = cmpInstances.get(i);
+                String activeNodeId = StrUtil.isEmpty(cmpInstance.getNodeId()) ? nodeId : cmpInstance.getNodeId();
+                nodeMap.put(activeNodeId, node);
+            }
+
+        } catch (Exception e) {
+            String error = StrUtil.format("component[{}] register error", StrUtil.isEmpty(name) ? nodeId : StrUtil.format("{}({})", nodeId, name));
+            LOG.error(e.getMessage());
+            throw new ComponentCannotRegisterException(StrUtil.format("{} {}", error, e.getMessage()));
+        }
+    }
 
     private static void addNode(String nodeId, String name, NodeTypeEnum type, Class<?> cmpClazz, String script) {
         try {

@@ -102,6 +102,14 @@ public class LiteFlowNodeBuilder {
         return this;
     }
 
+    public LiteFlowNodeBuilder setVersion(String version) {
+        if (StrUtil.isBlank(version)) {
+            return this;
+        }
+        this.node.setVersion(version.trim());
+        return this;
+    }
+
     public LiteFlowNodeBuilder setClazz(String clazz) {
         if (StrUtil.isBlank(clazz)) {
             return this;
@@ -150,8 +158,15 @@ public class LiteFlowNodeBuilder {
 //           }
            // 用于处理普通 node
 //           else{
-               FlowBus.addNode(this.node.getId(), this.node.getName(), this.node.getType(), this.node.getClazz());
+//               FlowBus.addNode(this.node.getId(), this.node.getName(), this.node.getType(), this.node.getClazz());
 //           }
+
+            if (this.node.getType().getCode().equals(NodeTypeEnum.FUN.getCode())) {
+                FlowBus.addFunNode(this.node.getId(), this.node.getName(), this.node.getType(), this.node.getVersion());
+            } else {
+                FlowBus.addNode(this.node.getId(), this.node.getName(), this.node.getType(), this.node.getClazz());
+            }
+
         } catch (Exception e) {
             String errMsg = StrUtil.format("An exception occurred while building the node[{}],{}", this.node.getId(), e.getMessage());
             LOG.error(errMsg, e);

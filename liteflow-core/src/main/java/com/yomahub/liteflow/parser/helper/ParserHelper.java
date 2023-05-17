@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.yomahub.liteflow.builder.LiteFlowNodeBuilder;
 import com.yomahub.liteflow.builder.el.LiteFlowChainELBuilder;
+import com.yomahub.liteflow.builder.prop.FunPropBean;
 import com.yomahub.liteflow.builder.prop.NodePropBean;
 import com.yomahub.liteflow.enums.NodeTypeEnum;
 import com.yomahub.liteflow.exception.*;
@@ -86,6 +87,25 @@ public class ParserHelper {
 	}
 
 	/**
+	 * 构建 fun
+	 *
+	 * @param funPropBean 构建 fun 的中间属性
+	 */
+	public static void buildFun(FunPropBean funPropBean) {
+		String id = funPropBean.getId();
+		String name = funPropBean.getName();
+		String version = funPropBean.getVersion();
+		NodeTypeEnum nodeTypeEnum = NodeTypeEnum.getEnumByCode(funPropBean.getType());
+
+		//进行fun的build过程
+		LiteFlowNodeBuilder.createNode()
+				.setId(id)
+				.setName(name)
+				.setVersion(version).setType(nodeTypeEnum)
+				.build();
+	}
+
+	/**
 	 * xml 形式的主要解析过程
 	 * @param documentList          documentList
 	 */
@@ -119,6 +139,37 @@ public class ParserHelper {
 							.setFile(file);
 
 					ParserHelper.buildNode(nodePropBean);
+				}
+			}
+		}
+	}
+
+	/**
+	 * xml 形式的主要解析过程
+	 * @param documentList          documentList
+	 */
+	/**
+	 * xml 形式的主要解析过程
+	 * @param documentList          documentList
+	 */
+	public static void parseFunDocument(List<Document> documentList) {
+		for (Document document : documentList) {
+			Element rootElement = document.getRootElement();
+			Element funsElement = rootElement.element(FUNS);
+			// 当存在<funs>节点定义时，解析fun节点
+			if (ObjectUtil.isNotNull(funsElement)) {
+				List<Element> funList = funsElement.elements(FUN);
+				String id, name, version;
+				for (Element e : funList) {
+					id = e.attributeValue(ID);
+					name = e.attributeValue(NAME);
+					version = e.attributeValue(VERSION);
+
+					// 构建 fun
+					FunPropBean funPropBean = new FunPropBean().setId(id)
+							.setName(name).setVersion(version).setType(NodeTypeEnum.FUN.getCode());
+
+					ParserHelper.buildFun(funPropBean);
 				}
 			}
 		}

@@ -9,8 +9,15 @@
         <node id="x" class="com.newland.sf.component.XCmp" ></node>
     </nodes>
 
+    <funs>
+        <fun id="chachong" name="chachong" version="1.0.0" />
+        <fun id="yaosuqiuqu" name="yaosuqiuqu" version="1.0.0" />
+        <fun id="pijia" name="pijia" version="1.0.0" />
+        <fun id="koukuan" name="koukuan" version="1.0.0" />
+    </funs>
+
     <chain name="chain1">
-        THEN(a, b, c);
+        THEN(chachong, yaosuqiuqu, pijia, koukuan);
     </chain>
     <chain name="chain2">
         THEN(b, a, c);
