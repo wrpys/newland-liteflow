@@ -55,7 +55,7 @@ public class LiteFlowChainELBuilder {
         //初始化QLExpress的Runner
         EXPRESS_RUNNER.addFunction(ChainConstant.THEN, new ThenOperator());
         EXPRESS_RUNNER.addFunction(ChainConstant.WHEN, new WhenOperator());
-        EXPRESS_RUNNER.addFunction(ChainConstant.SWITCH, new SwitchOperator());
+//        EXPRESS_RUNNER.addFunction(ChainConstant.SWITCH, new SwitchOperator());
         EXPRESS_RUNNER.addFunction(ChainConstant.PRE, new PreOperator());
         EXPRESS_RUNNER.addFunction(ChainConstant.FINALLY, new FinallyOperator());
         EXPRESS_RUNNER.addFunction(ChainConstant.IF, new IfOperator());
@@ -65,9 +65,9 @@ public class LiteFlowChainELBuilder {
 
         EXPRESS_RUNNER.addFunctionAndClassMethod(ChainConstant.ELSE, Object.class, new ElseOperator());
         EXPRESS_RUNNER.addFunctionAndClassMethod(ChainConstant.ELIF, Object.class, new ElifOperator());
-        EXPRESS_RUNNER.addFunctionAndClassMethod(ChainConstant.TO, Object.class, new ToOperator());
-        EXPRESS_RUNNER.addFunctionAndClassMethod(ChainConstant.TO.toLowerCase(), Object.class, new ToOperator());
-        EXPRESS_RUNNER.addFunctionAndClassMethod(ChainConstant.DEFAULT, Object.class, new DefaultOperator());
+//        EXPRESS_RUNNER.addFunctionAndClassMethod(ChainConstant.TO, Object.class, new ToOperator());
+//        EXPRESS_RUNNER.addFunctionAndClassMethod(ChainConstant.TO.toLowerCase(), Object.class, new ToOperator());
+//        EXPRESS_RUNNER.addFunctionAndClassMethod(ChainConstant.DEFAULT, Object.class, new DefaultOperator());
         EXPRESS_RUNNER.addFunctionAndClassMethod(ChainConstant.TAG, Object.class, new TagOperator());
         EXPRESS_RUNNER.addFunctionAndClassMethod(ChainConstant.ANY, Object.class, new AnyOperator());
         EXPRESS_RUNNER.addFunctionAndClassMethod(ChainConstant.ID, Object.class, new IdOperator());
@@ -75,11 +75,11 @@ public class LiteFlowChainELBuilder {
         EXPRESS_RUNNER.addFunctionAndClassMethod(ChainConstant.THREAD_POOL, Object.class, new ThreadPoolOperator());
         EXPRESS_RUNNER.addFunction(ChainConstant.NODE.toUpperCase(), new NodeOperator());
         EXPRESS_RUNNER.addFunction(ChainConstant.NODE, new NodeOperator());
-        EXPRESS_RUNNER.addFunction(ChainConstant.FOR, new ForOperator());
-        EXPRESS_RUNNER.addFunction(ChainConstant.WHILE, new WhileOperator());
-        EXPRESS_RUNNER.addFunction(ChainConstant.ITERATOR, new IteratorOperator());
-        EXPRESS_RUNNER.addFunctionAndClassMethod(ChainConstant.DO, Object.class, new DoOperator());
-        EXPRESS_RUNNER.addFunctionAndClassMethod(ChainConstant.BREAK, Object.class, new BreakOperator());
+//        EXPRESS_RUNNER.addFunction(ChainConstant.FOR, new ForOperator());
+//        EXPRESS_RUNNER.addFunction(ChainConstant.WHILE, new WhileOperator());
+//        EXPRESS_RUNNER.addFunction(ChainConstant.ITERATOR, new IteratorOperator());
+//        EXPRESS_RUNNER.addFunctionAndClassMethod(ChainConstant.DO, Object.class, new DoOperator());
+//        EXPRESS_RUNNER.addFunctionAndClassMethod(ChainConstant.BREAK, Object.class, new BreakOperator());
         EXPRESS_RUNNER.addFunctionAndClassMethod(ChainConstant.DATA, Object.class, new DataOperator());
     }
 

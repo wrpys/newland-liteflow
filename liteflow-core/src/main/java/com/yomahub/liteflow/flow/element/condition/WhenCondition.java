@@ -8,7 +8,6 @@
 package com.yomahub.liteflow.flow.element.condition;
 
 import cn.hutool.core.util.StrUtil;
-import com.yomahub.liteflow.common.LocalDefaultFlowConstant;
 import com.yomahub.liteflow.enums.ConditionTypeEnum;
 import com.yomahub.liteflow.exception.WhenExecuteException;
 import com.yomahub.liteflow.flow.parallel.CompletableFutureTimeout;
@@ -21,6 +20,7 @@ import com.yomahub.liteflow.slot.Slot;
 import com.yomahub.liteflow.thread.ExecutorHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -41,7 +41,7 @@ public class WhenCondition extends Condition {
 
 	//只在when类型下有效，用于不同node进行同组合并，相同的组会进行合并，不同的组不会进行合并
 	//此属性已弃用
-	private String group = LocalDefaultFlowConstant.DEFAULT;
+//	private String group = LocalDefaultFlowConstant.DEFAULT;
 
 	//只在when类型下有效，为true的话说明在多个并行节点下，任意一个成功，整个when就成功
 	private boolean any = false;
@@ -177,13 +177,13 @@ public class WhenCondition extends Condition {
 		this.ignoreError = ignoreError;
 	}
 
-	public String getGroup() {
-		return group;
-	}
+//	public String getGroup() {
+//		return group;
+//	}
 
-	public void setGroup(String group) {
-		this.group = group;
-	}
+//	public void setGroup(String group) {
+//		this.group = group;
+//	}
 
 	public boolean isAny() {
 		return any;

@@ -10,36 +10,23 @@ package com.yomahub.liteflow.flow;
 
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.yomahub.liteflow.core.*;
-import com.yomahub.liteflow.enums.FlowParserTypeEnum;
+import com.yomahub.liteflow.core.ComponentInitializer;
+import com.yomahub.liteflow.core.NodeComponent;
 import com.yomahub.liteflow.enums.NodeTypeEnum;
 import com.yomahub.liteflow.exception.ComponentCannotRegisterException;
 import com.yomahub.liteflow.exception.NullNodeTypeException;
 import com.yomahub.liteflow.flow.element.Chain;
 import com.yomahub.liteflow.flow.element.Node;
-import com.yomahub.liteflow.parser.el.LocalJsonFlowELParser;
-import com.yomahub.liteflow.parser.el.LocalXmlFlowELParser;
-import com.yomahub.liteflow.parser.el.LocalYmlFlowELParser;
-import com.yomahub.liteflow.script.ScriptExecutor;
-import com.yomahub.liteflow.script.ScriptExecutorFactory;
-import com.yomahub.liteflow.script.exception.ScriptLoadException;
-import com.yomahub.liteflow.script.exception.ScriptSpiException;
-import com.yomahub.liteflow.spi.ContextAware;
 import com.yomahub.liteflow.spi.holder.ContextAwareHolder;
-import com.yomahub.liteflow.spi.local.LocalContextAware;
 import com.yomahub.liteflow.util.CopyOnWriteHashMap;
-import com.yomahub.liteflow.util.LiteFlowProxyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -127,38 +114,38 @@ public class FlowBus {
         addNode(nodeId, name, nodeType, cmpClazz, null);
     }
 
-    /**
-     * 添加脚本 node
-     *
-     * @param nodeId   节点id
-     * @param name     节点名称
-     * @param nodeType 节点类型
-     * @param script   脚本
-     */
-    public static void addScriptNode(String nodeId, String name, NodeTypeEnum nodeType, String script) {
-        addNode(nodeId, name, nodeType, ScriptComponent.ScriptComponentClassMap.get(nodeType), script);
-    }
+//    /**
+//     * 添加脚本 node
+//     *
+//     * @param nodeId   节点id
+//     * @param name     节点名称
+//     * @param nodeType 节点类型
+//     * @param script   脚本
+//     */
+//    public static void addScriptNode(String nodeId, String name, NodeTypeEnum nodeType, String script) {
+//        addNode(nodeId, name, nodeType, ScriptComponent.ScriptComponentClassMap.get(nodeType), script);
+//    }
 
     private static void addNode(String nodeId, String name, NodeTypeEnum type, Class<?> cmpClazz, String script) {
         try {
             //判断此类是否是声明式的组件，如果是声明式的组件，就用动态代理生成实例
             //如果不是声明式的，就用传统的方式进行判断
             List<NodeComponent> cmpInstances = new ArrayList<>();
-            if (LiteFlowProxyUtil.isDeclareCmp(cmpClazz)) {
-                //这里的逻辑要仔细看下
-                //如果是spring体系，把原始的类往spring上下文中进行注册，那么会走到ComponentScanner中
-                //由于ComponentScanner中已经对原始类进行了动态代理，出来的对象已经变成了动态代理类，所以这时候的bean已经是NodeComponent的子类了
-                //所以spring体系下，无需再对这个bean做二次代理
-                //但是在非spring体系下，这个bean依旧是原来那个bean，所以需要对这个bean做一次代理
-                //这里用ContextAware的spi机制来判断是否spring体系
-                ContextAware contextAware = ContextAwareHolder.loadContextAware();
-                Object bean = ContextAwareHolder.loadContextAware().registerBean(nodeId, cmpClazz);
-                if (LocalContextAware.class.isAssignableFrom(contextAware.getClass())) {
-                    cmpInstances = LiteFlowProxyUtil.proxy2NodeComponent(bean, nodeId);
-                } else {
-                    cmpInstances = ListUtil.toList((NodeComponent) bean);
-                }
-            } else {
+//            if (LiteFlowProxyUtil.isDeclareCmp(cmpClazz)) {
+//                //这里的逻辑要仔细看下
+//                //如果是spring体系，把原始的类往spring上下文中进行注册，那么会走到ComponentScanner中
+//                //由于ComponentScanner中已经对原始类进行了动态代理，出来的对象已经变成了动态代理类，所以这时候的bean已经是NodeComponent的子类了
+//                //所以spring体系下，无需再对这个bean做二次代理
+//                //但是在非spring体系下，这个bean依旧是原来那个bean，所以需要对这个bean做一次代理
+//                //这里用ContextAware的spi机制来判断是否spring体系
+//                ContextAware contextAware = ContextAwareHolder.loadContextAware();
+//                Object bean = ContextAwareHolder.loadContextAware().registerBean(nodeId, cmpClazz);
+//                if (LocalContextAware.class.isAssignableFrom(contextAware.getClass())) {
+//                    cmpInstances = LiteFlowProxyUtil.proxy2NodeComponent(bean, nodeId);
+//                } else {
+//                    cmpInstances = ListUtil.toList((NodeComponent) bean);
+//                }
+//            } else {
                 //以node方式配置，本质上是为了适配无spring的环境，如果有spring环境，其实不用这么配置
                 //这里的逻辑是判断是否能从spring上下文中取到，如果没有spring，则就是new instance了
                 //如果是script类型的节点，因为class只有一个，所以也不能注册进spring上下文，注册的时候需要new Instance
@@ -172,7 +159,7 @@ public class FlowBus {
                     NodeComponent cmpInstance = (NodeComponent) cmpClazz.newInstance();
                     cmpInstances.add(cmpInstance);
                 }
-            }
+//            }
             //进行初始化component
             cmpInstances = cmpInstances.stream()
                     .map(cmpInstance -> ComponentInitializer.loadInstance().initComponent(
@@ -190,15 +177,15 @@ public class FlowBus {
                 Node node = nodes.get(i);
                 NodeComponent cmpInstance = cmpInstances.get(i);
                 //如果是脚本节点，则还要加载script脚本
-                if (type.isScript()) {
-                    if (StrUtil.isNotBlank(script)) {
-                        node.setScript(script);
-                        ((ScriptComponent) cmpInstance).loadScript(script);
-                    } else {
-                        String errorMsg = StrUtil.format("script for node[{}] is empty", nodeId);
-                        throw new ScriptLoadException(errorMsg);
-                    }
-                }
+//                if (type.isScript()) {
+//                    if (StrUtil.isNotBlank(script)) {
+//                        node.setScript(script);
+//                        ((ScriptComponent) cmpInstance).loadScript(script);
+//                    } else {
+//                        String errorMsg = StrUtil.format("script for node[{}] is empty", nodeId);
+//                        throw new ScriptLoadException(errorMsg);
+//                    }
+//                }
 
                 String activeNodeId = StrUtil.isEmpty(cmpInstance.getNodeId()) ? nodeId : cmpInstance.getNodeId();
                 nodeMap.put(activeNodeId, node);
@@ -238,29 +225,29 @@ public class FlowBus {
     public static void cleanCache() {
         chainMap.clear();
         nodeMap.clear();
-        cleanScriptCache();
+//        cleanScriptCache();
     }
 
-    public static void cleanScriptCache() {
+//    public static void cleanScriptCache() {
         //如果引入了脚本组件SPI，则还需要清理脚本的缓存
-        try {
-            ScriptExecutor scriptExecutor = ScriptExecutorFactory.loadInstance().getScriptExecutor();
-            if (ObjectUtil.isNotNull(scriptExecutor)) {
-                scriptExecutor.cleanCache();
-            }
-        } catch (ScriptSpiException ignored) {
-        }
-    }
+//        try {
+//            ScriptExecutor scriptExecutor = ScriptExecutorFactory.loadInstance().getScriptExecutor();
+//            if (ObjectUtil.isNotNull(scriptExecutor)) {
+//                scriptExecutor.cleanCache();
+//            }
+//        } catch (ScriptSpiException ignored) {
+//        }
+//    }
 
-    public static void refreshFlowMetaData(FlowParserTypeEnum type, String content) throws Exception {
-        if (type.equals(FlowParserTypeEnum.TYPE_EL_XML)) {
-            new LocalXmlFlowELParser().parse(content);
-        } else if (type.equals(FlowParserTypeEnum.TYPE_EL_JSON)) {
-            new LocalJsonFlowELParser().parse(content);
-        } else if (type.equals(FlowParserTypeEnum.TYPE_EL_YML)) {
-            new LocalYmlFlowELParser().parse(content);
-        }
-    }
+//    public static void refreshFlowMetaData(FlowParserTypeEnum type, String content) throws Exception {
+//        if (type.equals(FlowParserTypeEnum.TYPE_EL_XML)) {
+//            new LocalXmlFlowELParser().parse(content);
+//        } else if (type.equals(FlowParserTypeEnum.TYPE_EL_JSON)) {
+//            new LocalJsonFlowELParser().parse(content);
+//        } else if (type.equals(FlowParserTypeEnum.TYPE_EL_YML)) {
+//            new LocalYmlFlowELParser().parse(content);
+//        }
+//    }
 
     public static boolean removeChain(String chainId) {
         if (containChain(chainId)) {

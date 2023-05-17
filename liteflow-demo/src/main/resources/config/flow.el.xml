@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <flow name="flow.el" version="1.0.0">
+
+    <nodes>
+        <node id="a" class="com.newland.sf.component.ACmp" ></node>
+        <node id="b" class="com.newland.sf.component.BCmp" ></node>
+        <node id="c" class="com.newland.sf.component.CCmp" ></node>
+        <node id="d" class="com.newland.sf.component.DCmp" ></node>
+        <node id="x" class="com.newland.sf.component.XCmp" ></node>
+    </nodes>
+
     <chain name="chain1">
         THEN(a, b, c);
     </chain>
@@ -8,9 +17,6 @@
     </chain>
     <chain name="chain3">
         THEN(c, a, b);
-    </chain>
-    <chain name="chain4">
-        IF(x, a, b);
     </chain>
     <chain name="chain5">
         THEN(chain1, chain2);

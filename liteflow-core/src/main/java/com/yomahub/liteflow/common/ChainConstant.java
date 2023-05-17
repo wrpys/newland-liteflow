@@ -9,7 +9,7 @@ public interface ChainConstant {
 
     String CHAIN = "chain";
 
-    String FLOW = "flow";
+//    String FLOW = "flow";
 
     String NODES = "nodes";
 
@@ -49,7 +49,7 @@ public interface ChainConstant {
 
     String ELIF = "ELIF";
 
-    String TO = "TO";
+//    String TO = "TO";
 
     String TAG = "tag";
 
@@ -57,21 +57,21 @@ public interface ChainConstant {
 
     String THREAD_POOL = "threadPool";
 
-    String WHILE = "WHILE";
+//    String WHILE = "WHILE";
 
-    String FOR = "FOR";
+//    String FOR = "FOR";
 
-    String DO = "DO";
+//    String DO = "DO";
 
-    String BREAK = "BREAK";
+//    String BREAK = "BREAK";
 
     String DATA = "data";
 
-    String ITERATOR = "ITERATOR";
+//    String ITERATOR = "ITERATOR";
 
     String MONITOR_BUS = "monitorBus";
 
     String CURR_CHAIN_ID = "currChainId";
 
-    String DEFAULT = "DEFAULT";
+//    String DEFAULT = "DEFAULT";
 }

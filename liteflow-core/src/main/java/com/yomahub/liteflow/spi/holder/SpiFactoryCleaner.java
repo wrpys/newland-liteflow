@@ -6,7 +6,7 @@ public class SpiFactoryCleaner {
         CmpAroundAspectHolder.clean();
         ContextAwareHolder.clean();
         ContextCmpInitHolder.clean();
-        LiteflowComponentSupportHolder.clean();
+//        LiteflowComponentSupportHolder.clean();
         PathContentParserHolder.clean();
     }
 }

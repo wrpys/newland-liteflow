@@ -5,9 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import com.yomahub.liteflow.core.FlowExecutor;
 import com.yomahub.liteflow.exception.ErrorSupportPathException;
 import com.yomahub.liteflow.parser.base.FlowParser;
-import com.yomahub.liteflow.parser.el.ClassJsonFlowELParser;
 import com.yomahub.liteflow.parser.el.ClassXmlFlowELParser;
-import com.yomahub.liteflow.parser.el.ClassYmlFlowELParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,11 +45,11 @@ public class FlowParserProvider {
 	private static final Map<Predicate<String>, Function<String, FlowParser>> LOCAL_PARSER_DICT =
 			new HashMap<Predicate<String>, Function<String, FlowParser>>() {{
 				put(path -> ReUtil.isMatch(LOCAL_XML_CONFIG_REGEX, path), LOCAL_PARSER_FACTORY::createXmlELParser);
-				put(path -> ReUtil.isMatch(LOCAL_JSON_CONFIG_REGEX, path), LOCAL_PARSER_FACTORY::createJsonELParser);
-				put(path -> ReUtil.isMatch(LOCAL_YML_CONFIG_REGEX, path), LOCAL_PARSER_FACTORY::createYmlELParser);
+//				put(path -> ReUtil.isMatch(LOCAL_JSON_CONFIG_REGEX, path), LOCAL_PARSER_FACTORY::createJsonELParser);
+//				put(path -> ReUtil.isMatch(LOCAL_YML_CONFIG_REGEX, path), LOCAL_PARSER_FACTORY::createYmlELParser);
 				put(path -> ReUtil.isMatch(LOCAL_EL_XML_CONFIG_REGEX, path), LOCAL_PARSER_FACTORY::createXmlELParser);
-				put(path -> ReUtil.isMatch(LOCAL_EL_JSON_CONFIG_REGEX, path), LOCAL_PARSER_FACTORY::createJsonELParser);
-				put(path -> ReUtil.isMatch(LOCAL_EL_YML_CONFIG_REGEX, path), LOCAL_PARSER_FACTORY::createYmlELParser);
+//				put(path -> ReUtil.isMatch(LOCAL_EL_JSON_CONFIG_REGEX, path), LOCAL_PARSER_FACTORY::createJsonELParser);
+//				put(path -> ReUtil.isMatch(LOCAL_EL_YML_CONFIG_REGEX, path), LOCAL_PARSER_FACTORY::createYmlELParser);
 			}};
 
 	private static final FlowParserFactory CLASS_PARSER_FACTORY = new ClassParserFactory();
@@ -66,8 +64,8 @@ public class FlowParserProvider {
 	private static final Map<Predicate<Class<?>>, Function<String, FlowParser>> CLASS_PARSER_DICT =
 			new HashMap<Predicate<Class<?>>, Function<String, FlowParser>>() {{
 				put(ClassXmlFlowELParser.class::isAssignableFrom, CLASS_PARSER_FACTORY::createXmlELParser);
-				put(ClassJsonFlowELParser.class::isAssignableFrom, CLASS_PARSER_FACTORY::createJsonELParser);
-				put(ClassYmlFlowELParser.class::isAssignableFrom, CLASS_PARSER_FACTORY::createYmlELParser);
+//				put(ClassJsonFlowELParser.class::isAssignableFrom, CLASS_PARSER_FACTORY::createJsonELParser);
+//				put(ClassYmlFlowELParser.class::isAssignableFrom, CLASS_PARSER_FACTORY::createYmlELParser);
 			}};
 
 	/**

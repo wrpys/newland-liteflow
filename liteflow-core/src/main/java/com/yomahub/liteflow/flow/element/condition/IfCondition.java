@@ -26,7 +26,8 @@ public class IfCondition extends Condition {
 
     @Override
     public void execute(Integer slotIndex) throws Exception {
-        if (ListUtil.toList(NodeTypeEnum.IF, NodeTypeEnum.IF_SCRIPT).contains(getIfNode().getType())){
+//        if (ListUtil.toList(NodeTypeEnum.IF, NodeTypeEnum.IF_SCRIPT).contains(getIfNode().getType())){
+        if (ListUtil.toList(NodeTypeEnum.IF).contains(getIfNode().getType())){
             //先执行IF节点
             this.getIfNode().setCurrChainId(this.getCurrChainId());
             this.getIfNode().execute(slotIndex);

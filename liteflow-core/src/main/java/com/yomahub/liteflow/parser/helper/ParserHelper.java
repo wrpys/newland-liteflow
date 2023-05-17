@@ -171,69 +171,69 @@ public class ParserHelper {
 		}
 	}
 
- 	public static void parseNodeJson(List<JsonNode> flowJsonObjectList) {
-		for (JsonNode flowJsonNode : flowJsonObjectList) {
-			// 当存在<nodes>节点定义时，解析node节点
-			if (flowJsonNode.get(FLOW).has(NODES)) {
-				Iterator<JsonNode> nodeIterator = flowJsonNode.get(FLOW).get(NODES).get(NODE).elements();
-				String id, name, clazz, script, type, file;
-				while ((nodeIterator.hasNext())) {
-					JsonNode nodeObject = nodeIterator.next();
-					id = nodeObject.get(ID).textValue();
-					name = nodeObject.hasNonNull(NAME) ? nodeObject.get(NAME).textValue() : "";
-					clazz = nodeObject.hasNonNull(_CLASS) ? nodeObject.get(_CLASS).textValue() : "";;
-					type = nodeObject.hasNonNull(TYPE) ? nodeObject.get(TYPE).textValue() : null;
-					script = nodeObject.hasNonNull(VALUE) ? nodeObject.get(VALUE).textValue() : "";
-					file = nodeObject.hasNonNull(FILE) ? nodeObject.get(FILE).textValue() : "";
-
-					// 构建 node
-					NodePropBean nodePropBean = new NodePropBean()
-							.setId(id)
-							.setName(name)
-							.setClazz(clazz)
-							.setScript(script)
-							.setType(type)
-							.setFile(file);
-
-					ParserHelper.buildNode(nodePropBean);
-				}
-			}
-		}
- 	}
+// 	public static void parseNodeJson(List<JsonNode> flowJsonObjectList) {
+//		for (JsonNode flowJsonNode : flowJsonObjectList) {
+//			// 当存在<nodes>节点定义时，解析node节点
+//			if (flowJsonNode.get(FLOW).has(NODES)) {
+//				Iterator<JsonNode> nodeIterator = flowJsonNode.get(FLOW).get(NODES).get(NODE).elements();
+//				String id, name, clazz, script, type, file;
+//				while ((nodeIterator.hasNext())) {
+//					JsonNode nodeObject = nodeIterator.next();
+//					id = nodeObject.get(ID).textValue();
+//					name = nodeObject.hasNonNull(NAME) ? nodeObject.get(NAME).textValue() : "";
+//					clazz = nodeObject.hasNonNull(_CLASS) ? nodeObject.get(_CLASS).textValue() : "";;
+//					type = nodeObject.hasNonNull(TYPE) ? nodeObject.get(TYPE).textValue() : null;
+//					script = nodeObject.hasNonNull(VALUE) ? nodeObject.get(VALUE).textValue() : "";
+//					file = nodeObject.hasNonNull(FILE) ? nodeObject.get(FILE).textValue() : "";
+//
+//					// 构建 node
+//					NodePropBean nodePropBean = new NodePropBean()
+//							.setId(id)
+//							.setName(name)
+//							.setClazz(clazz)
+//							.setScript(script)
+//							.setType(type)
+//							.setFile(file);
+//
+//					ParserHelper.buildNode(nodePropBean);
+//				}
+//			}
+//		}
+// 	}
  
-	public static void parseChainJson(List<JsonNode> flowJsonObjectList, Set<String> chainNameSet, Consumer<JsonNode> parseOneChainConsumer){
-		//先在元数据里放上chain
-		//先放有一个好处，可以在parse的时候先映射到FlowBus的chainMap，然后再去解析
-		//这样就不用去像之前的版本那样回归调用
-		//同时也解决了不能循环依赖的问题
-		flowJsonObjectList.forEach(jsonObject -> {
-			// 解析chain节点
-			Iterator<JsonNode> iterator = jsonObject.get(FLOW).get(CHAIN).elements();
-			//先在元数据里放上chain
-			while (iterator.hasNext()) {
-				JsonNode innerJsonObject = iterator.next();
-				//校验加载的 chainName 是否有重复的
-				// TODO 这里是否有个问题，当混合格式加载的时候，2个同名的Chain在不同的文件里，就不行了
-				String chainName = Optional.ofNullable(innerJsonObject.get(ID)).orElse(innerJsonObject.get(NAME)).textValue();
-				if (!chainNameSet.add(chainName)) {
-					throw new ChainDuplicateException(String.format("[chain name duplicate] chainName=%s", chainName));
-				}
-
-				FlowBus.addChain(chainName);
-			}
-		});
-		// 清空
-		chainNameSet.clear();
-
-		for (JsonNode flowJsonNode : flowJsonObjectList) {
-			//解析每一个chain
-			Iterator<JsonNode> chainIterator = flowJsonNode.get(FLOW).get(CHAIN).elements();
-			while (chainIterator.hasNext()) {
-				JsonNode jsonNode = chainIterator.next();
-				parseOneChainConsumer.accept(jsonNode);
-			}
-		}
-	}
+//	public static void parseChainJson(List<JsonNode> flowJsonObjectList, Set<String> chainNameSet, Consumer<JsonNode> parseOneChainConsumer){
+//		//先在元数据里放上chain
+//		//先放有一个好处，可以在parse的时候先映射到FlowBus的chainMap，然后再去解析
+//		//这样就不用去像之前的版本那样回归调用
+//		//同时也解决了不能循环依赖的问题
+//		flowJsonObjectList.forEach(jsonObject -> {
+//			// 解析chain节点
+//			Iterator<JsonNode> iterator = jsonObject.get(FLOW).get(CHAIN).elements();
+//			//先在元数据里放上chain
+//			while (iterator.hasNext()) {
+//				JsonNode innerJsonObject = iterator.next();
+//				//校验加载的 chainName 是否有重复的
+//				// TODO 这里是否有个问题，当混合格式加载的时候，2个同名的Chain在不同的文件里，就不行了
+//				String chainName = Optional.ofNullable(innerJsonObject.get(ID)).orElse(innerJsonObject.get(NAME)).textValue();
+//				if (!chainNameSet.add(chainName)) {
+//					throw new ChainDuplicateException(String.format("[chain name duplicate] chainName=%s", chainName));
+//				}
+//
+//				FlowBus.addChain(chainName);
+//			}
+//		});
+//		// 清空
+//		chainNameSet.clear();
+//
+//		for (JsonNode flowJsonNode : flowJsonObjectList) {
+//			//解析每一个chain
+//			Iterator<JsonNode> chainIterator = flowJsonNode.get(FLOW).get(CHAIN).elements();
+//			while (chainIterator.hasNext()) {
+//				JsonNode jsonNode = chainIterator.next();
+//				parseOneChainConsumer.accept(jsonNode);
+//			}
+//		}
+//	}
 
 	/**
 	 * 解析一个chain的过程

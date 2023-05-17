@@ -29,53 +29,53 @@ public class LiteFlowNodeBuilder {
         return new LiteFlowNodeBuilder(NodeTypeEnum.COMMON);
     }
 
-    public static LiteFlowNodeBuilder createSwitchNode() {
-        return new LiteFlowNodeBuilder(NodeTypeEnum.SWITCH);
-    }
+//    public static LiteFlowNodeBuilder createSwitchNode() {
+//        return new LiteFlowNodeBuilder(NodeTypeEnum.SWITCH);
+//    }
 
     public static LiteFlowNodeBuilder createIfNode() {
         return new LiteFlowNodeBuilder(NodeTypeEnum.IF);
     }
 
-    public static LiteFlowNodeBuilder createForNode() {
-        return new LiteFlowNodeBuilder(NodeTypeEnum.FOR);
-    }
+//    public static LiteFlowNodeBuilder createForNode() {
+//        return new LiteFlowNodeBuilder(NodeTypeEnum.FOR);
+//    }
 
-    public static LiteFlowNodeBuilder createWhileNode() {
-        return new LiteFlowNodeBuilder(NodeTypeEnum.WHILE);
-    }
+//    public static LiteFlowNodeBuilder createWhileNode() {
+//        return new LiteFlowNodeBuilder(NodeTypeEnum.WHILE);
+//    }
 
-    public static LiteFlowNodeBuilder createBreakNode() {
-        return new LiteFlowNodeBuilder(NodeTypeEnum.BREAK);
-    }
+//    public static LiteFlowNodeBuilder createBreakNode() {
+//        return new LiteFlowNodeBuilder(NodeTypeEnum.BREAK);
+//    }
 
-    public static LiteFlowNodeBuilder createIteratorNode() {
-        return new LiteFlowNodeBuilder(NodeTypeEnum.ITERATOR);
-    }
+//    public static LiteFlowNodeBuilder createIteratorNode() {
+//        return new LiteFlowNodeBuilder(NodeTypeEnum.ITERATOR);
+//    }
 
-    public static LiteFlowNodeBuilder createScriptNode() {
-        return new LiteFlowNodeBuilder(NodeTypeEnum.SCRIPT);
-    }
+//    public static LiteFlowNodeBuilder createScriptNode() {
+//        return new LiteFlowNodeBuilder(NodeTypeEnum.SCRIPT);
+//    }
 
-    public static LiteFlowNodeBuilder createScriptSwitchNode() {
-        return new LiteFlowNodeBuilder(NodeTypeEnum.SWITCH_SCRIPT);
-    }
+//    public static LiteFlowNodeBuilder createScriptSwitchNode() {
+//        return new LiteFlowNodeBuilder(NodeTypeEnum.SWITCH_SCRIPT);
+//    }
 
-    public static LiteFlowNodeBuilder createScriptIfNode() {
-        return new LiteFlowNodeBuilder(NodeTypeEnum.IF_SCRIPT);
-    }
+//    public static LiteFlowNodeBuilder createScriptIfNode() {
+//        return new LiteFlowNodeBuilder(NodeTypeEnum.IF_SCRIPT);
+//    }
 
-    public static LiteFlowNodeBuilder createScriptForNode() {
-        return new LiteFlowNodeBuilder(NodeTypeEnum.FOR_SCRIPT);
-    }
+//    public static LiteFlowNodeBuilder createScriptForNode() {
+//        return new LiteFlowNodeBuilder(NodeTypeEnum.FOR_SCRIPT);
+//    }
 
-    public static LiteFlowNodeBuilder createScriptWhileNode() {
-        return new LiteFlowNodeBuilder(NodeTypeEnum.WHILE_SCRIPT);
-    }
+//    public static LiteFlowNodeBuilder createScriptWhileNode() {
+//        return new LiteFlowNodeBuilder(NodeTypeEnum.WHILE_SCRIPT);
+//    }
 
-    public static LiteFlowNodeBuilder createScriptBreakNode() {
-        return new LiteFlowNodeBuilder(NodeTypeEnum.BREAK_SCRIPT);
-    }
+//    public static LiteFlowNodeBuilder createScriptBreakNode() {
+//        return new LiteFlowNodeBuilder(NodeTypeEnum.BREAK_SCRIPT);
+//    }
 
     public LiteFlowNodeBuilder() {
         this.node = new Node();
@@ -145,13 +145,13 @@ public class LiteFlowNodeBuilder {
         checkBuild();
         try {
             // 用于处理脚本 node
-           if (this.node.getType().isScript()){
-               FlowBus.addScriptNode(this.node.getId(), this.node.getName(), this.node.getType(), this.node.getScript());
-           }
+//           if (this.node.getType().isScript()){
+//               FlowBus.addScriptNode(this.node.getId(), this.node.getName(), this.node.getType(), this.node.getScript());
+//           }
            // 用于处理普通 node
-           else{
+//           else{
                FlowBus.addNode(this.node.getId(), this.node.getName(), this.node.getType(), this.node.getClazz());
-           }
+//           }
         } catch (Exception e) {
             String errMsg = StrUtil.format("An exception occurred while building the node[{}],{}", this.node.getId(), e.getMessage());
             LOG.error(errMsg, e);

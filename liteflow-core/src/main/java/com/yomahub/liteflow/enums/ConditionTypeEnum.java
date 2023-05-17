@@ -17,11 +17,11 @@ public enum ConditionTypeEnum {
     TYPE_PRE("pre","pre"),
     TYPE_FINALLY("finally","finally"),
 
-    TYPE_FOR("for", "for"),
+//    TYPE_FOR("for", "for"),
 
-    TYPE_WHILE("while", "while"),
+//    TYPE_WHILE("while", "while"),
 
-    TYPE_ITERATOR("iterator", "iterator")
+//    TYPE_ITERATOR("iterator", "iterator")
     ;
     private String type;
     private String name;
