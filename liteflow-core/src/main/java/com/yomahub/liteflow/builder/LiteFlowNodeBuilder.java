@@ -86,6 +86,14 @@ public class LiteFlowNodeBuilder {
         this.node.setType(type);
     }
 
+    public LiteFlowNodeBuilder setContractId(String contractId) {
+        if (StrUtil.isBlank(contractId)) {
+            return this;
+        }
+        this.node.setContractId(contractId.trim());
+        return this;
+    }
+
     public LiteFlowNodeBuilder setId(String nodeId) {
         if (StrUtil.isBlank(nodeId)) {
             return this;
@@ -162,9 +170,9 @@ public class LiteFlowNodeBuilder {
 //           }
 
             if (this.node.getType().getCode().equals(NodeTypeEnum.FUN.getCode())) {
-                FlowBus.addFunNode(this.node.getId(), this.node.getName(), this.node.getType(), this.node.getVersion());
+                FlowBus.addFunNode(this.node.getContractId(), this.node.getId(), this.node.getName(), this.node.getType(), this.node.getVersion());
             } else {
-                FlowBus.addNode(this.node.getId(), this.node.getName(), this.node.getType(), this.node.getClazz());
+                FlowBus.addNode(this.node.getContractId(), this.node.getId(), this.node.getName(), this.node.getType(), this.node.getClazz());
             }
 
         } catch (Exception e) {

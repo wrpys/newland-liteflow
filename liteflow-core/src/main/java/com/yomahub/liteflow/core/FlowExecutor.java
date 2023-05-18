@@ -145,25 +145,28 @@ public class FlowExecutor {
                 throw new MultipleParsersException(errorMsg);
             }
 
-            //进行多个配置文件的一起解析
-            try {
-                if (parser != null) {
-                    parser.parseMain(rulePathList);
-                } else {
-                    throw new ConfigErrorException("parse error, please check liteflow config property");
-                }
-            } catch (CyclicDependencyException e) {
-                LOG.error(e.getMessage(), e);
-                LOG.error(e.getMessage());
-                throw e;
-            } catch (ChainDuplicateException e) {
-                LOG.error(e.getMessage(), e);
-                throw e;
-            } catch (Exception e) {
-                String errorMsg = StrUtil.format("init flow executor cause error for path {},reason: {}", rulePathList, e.getMessage());
-                LOG.error(e.getMessage(), e);
-                throw new FlowExecutorNotInitException(errorMsg);
+            if (parser == null) {
+                throw new ConfigErrorException("parse error, please check liteflow config property");
             }
+
+            //进行多个配置文件的一起解析
+            for (String rulePath : rulePathList) {
+                try {
+                    parser.parseMain(Arrays.asList(rulePath));
+                } catch (CyclicDependencyException e) {
+                    LOG.error(e.getMessage(), e);
+                    LOG.error(e.getMessage());
+                    throw e;
+                } catch (ChainDuplicateException e) {
+                    LOG.error(e.getMessage(), e);
+                    throw e;
+                } catch (Exception e) {
+                    String errorMsg = StrUtil.format("init flow executor cause error for path {},reason: {}", rulePath, e.getMessage());
+                    LOG.error(e.getMessage(), e);
+                    throw new FlowExecutorNotInitException(errorMsg);
+                }
+            }
+
         }
 
         //如果是ruleSource方式的，最后判断下有没有解析出来,如果没有解析出来则报错
@@ -188,71 +191,71 @@ public class FlowExecutor {
 
     //隐式流程的调用方法
     @Deprecated
-    public void invoke(String chainId, Object param, Integer slotIndex) throws Exception {
-        LiteflowResponse response = this.invoke2Resp(chainId, param, slotIndex, InnerChainTypeEnum.IN_SYNC);
+    public void invoke(String contractId, String chainId, Object param, Integer slotIndex) throws Exception {
+        LiteflowResponse response = this.invoke2Resp(contractId, chainId, param, slotIndex, InnerChainTypeEnum.IN_SYNC);
         if (!response.isSuccess()){
             throw response.getCause();
         }
     }
 
     @Deprecated
-    public void invokeInAsync(String chainId, Object param, Integer slotIndex) throws Exception {
-        LiteflowResponse response = this.invoke2Resp(chainId, param, slotIndex, InnerChainTypeEnum.IN_ASYNC);
+    public void invokeInAsync(String contractId, String chainId, Object param, Integer slotIndex) throws Exception {
+        LiteflowResponse response = this.invoke2Resp(contractId, chainId, param, slotIndex, InnerChainTypeEnum.IN_ASYNC);
         if (!response.isSuccess()){
             throw response.getCause();
         }
     }
 
-    public LiteflowResponse invoke2Resp(String chainId, Object param, Integer slotIndex) {
-        return this.invoke2Resp(chainId, param, slotIndex, InnerChainTypeEnum.IN_SYNC);
+    public LiteflowResponse invoke2Resp(String contractId, String chainId, Object param, Integer slotIndex) {
+        return this.invoke2Resp(contractId, chainId, param, slotIndex, InnerChainTypeEnum.IN_SYNC);
     }
 
-    public LiteflowResponse invoke2RespInAsync(String chainId, Object param, Integer slotIndex) {
-        return this.invoke2Resp(chainId, param, slotIndex, InnerChainTypeEnum.IN_ASYNC);
+    public LiteflowResponse invoke2RespInAsync(String contractId, String chainId, Object param, Integer slotIndex) {
+        return this.invoke2Resp(contractId, chainId, param, slotIndex, InnerChainTypeEnum.IN_ASYNC);
     }
 
     //单独调用某一个node
     @Deprecated
-    public void invoke(String nodeId, Integer slotIndex) throws Exception {
-        Node node = FlowBus.getNode(nodeId);
+    public void invoke(String contractId, String nodeId, Integer slotIndex) throws Exception {
+        Node node = FlowBus.getNode(contractId, nodeId);
         node.execute(slotIndex);
     }
 
     //调用一个流程并返回LiteflowResponse，上下文为默认的DefaultContext，初始参数为null
-    public LiteflowResponse execute2Resp(String chainId) {
+    public LiteflowResponse execute2Resp(String contractId, String chainId) {
         return this.execute2Resp(chainId, null, DefaultContext.class);
     }
 
     //调用一个流程并返回LiteflowResponse，上下文为默认的DefaultContext
-    public LiteflowResponse execute2Resp(String chainId, Object param) {
-        return this.execute2Resp(chainId, param, DefaultContext.class);
+    public LiteflowResponse execute2Resp(String contractId, String chainId, Object param) {
+        return this.execute2Resp(contractId, chainId, param, DefaultContext.class);
     }
 
     //调用一个流程并返回LiteflowResponse，允许多上下文的传入
-    public LiteflowResponse execute2Resp(String chainId, Object param, Class<?>... contextBeanClazzArray) {
-        return this.execute2Resp(chainId, param, contextBeanClazzArray, null);
+    public LiteflowResponse execute2Resp(String contractId, String chainId, Object param, Class<?>... contextBeanClazzArray) {
+        return this.execute2Resp(contractId, chainId, param, contextBeanClazzArray, null);
     }
 
-    public LiteflowResponse execute2Resp(String chainId, Object param, Object... contextBeanArray) {
-        return this.execute2Resp(chainId, param, null, contextBeanArray);
+    public LiteflowResponse execute2Resp(String contractId, String chainId, Object param, Object... contextBeanArray) {
+        return this.execute2Resp(contractId, chainId, param, null, contextBeanArray);
     }
 
     //调用一个流程并返回Future<LiteflowResponse>，允许多上下文的传入
-    public Future<LiteflowResponse> execute2Future(String chainId, Object param, Class<?>... contextBeanClazzArray) {
+    public Future<LiteflowResponse> execute2Future(String contractId, String chainId, Object param, Class<?>... contextBeanClazzArray) {
         return ExecutorHelper.loadInstance().buildMainExecutor(liteflowConfig.getMainExecutorClass()).submit(()
-                -> FlowExecutorHolder.loadInstance().execute2Resp(chainId, param, contextBeanClazzArray,null));
+                -> FlowExecutorHolder.loadInstance().execute2Resp(contractId, chainId, param, contextBeanClazzArray,null));
     }
 
 
-    public Future<LiteflowResponse> execute2Future(String chainId, Object param, Object... contextBeanArray) {
+    public Future<LiteflowResponse> execute2Future(String contractId, String chainId, Object param, Object... contextBeanArray) {
         return ExecutorHelper.loadInstance().buildMainExecutor(liteflowConfig.getMainExecutorClass()).submit(()
-                -> FlowExecutorHolder.loadInstance().execute2Resp(chainId, param, null, contextBeanArray));
+                -> FlowExecutorHolder.loadInstance().execute2Resp(contractId, chainId, param, null, contextBeanArray));
     }
 
     //调用一个流程，返回默认的上下文，适用于简单的调用
     @Deprecated
-    public DefaultContext execute(String chainId, Object param) throws Exception{
-        LiteflowResponse response = this.execute2Resp(chainId, param, DefaultContext.class);
+    public DefaultContext execute(String contractId, String chainId, Object param) throws Exception{
+        LiteflowResponse response = this.execute2Resp(contractId, chainId, param, DefaultContext.class);
         if (!response.isSuccess()){
             throw response.getCause();
         }else{
@@ -260,22 +263,23 @@ public class FlowExecutor {
         }
     }
 
-    private LiteflowResponse execute2Resp(String chainId,
+    private LiteflowResponse execute2Resp(String contractId, String chainId,
                                           Object param,
                                           Class<?>[] contextBeanClazzArray,
                                           Object[] contextBeanArray) {
-        Slot slot = doExecute(chainId, param, contextBeanClazzArray, contextBeanArray, null, InnerChainTypeEnum.NONE);
+        Slot slot = doExecute(contractId, chainId, param, contextBeanClazzArray, contextBeanArray, null, InnerChainTypeEnum.NONE);
         return LiteflowResponse.newMainResponse(slot);
     }
 
-    private LiteflowResponse invoke2Resp(String chainId,
+    private LiteflowResponse invoke2Resp(String contractId, String chainId,
                                           Object param,
                                           Integer slotIndex, InnerChainTypeEnum innerChainType) {
-        Slot slot = doExecute(chainId, param, null, null, slotIndex, innerChainType);
+        Slot slot = doExecute(contractId, chainId, param, null, null, slotIndex, innerChainType);
         return LiteflowResponse.newInnerResponse(chainId, slot);
     }
 
-    private Slot doExecute(String chainId,
+    private Slot doExecute(String contractId,
+                           String chainId,
                            Object param,
                            Class<?>[] contextBeanClazzArray,
                            Object[] contextBeanArray,
@@ -335,7 +339,7 @@ public class FlowExecutor {
 
         Chain chain = null;
         try {
-            chain = FlowBus.getChain(chainId);
+            chain = FlowBus.getChain(contractId, chainId);
 
             if (ObjectUtil.isNull(chain)) {
                 String errorMsg = StrUtil.format("[{}]:couldn't find chain with the id[{}]", slot.getRequestId(), chainId);

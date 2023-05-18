@@ -3,6 +3,7 @@ package com.yomahub.liteflow.builder.el.operator;
 import com.ql.util.express.exception.QLException;
 import com.yomahub.liteflow.builder.el.operator.base.BaseOperator;
 import com.yomahub.liteflow.builder.el.operator.base.OperatorHelper;
+import com.yomahub.liteflow.common.ChainConstant;
 import com.yomahub.liteflow.flow.element.Executable;
 import com.yomahub.liteflow.flow.element.condition.FinallyCondition;
 
@@ -19,6 +20,7 @@ public class FinallyOperator extends BaseOperator<FinallyCondition> {
 		OperatorHelper.checkObjectSizeGtZero(objects);
 
 		FinallyCondition finallyCondition = new FinallyCondition();
+		finallyCondition.setId(ChainConstant.FINALLY);
 		for (Object obj : objects) {
 			finallyCondition.addExecutable(OperatorHelper.convert(obj, Executable.class));
 		}

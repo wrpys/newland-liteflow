@@ -43,6 +43,8 @@ public class Slot{
 
 	private static final String RESPONSE = "_response";
 
+	private static final String CONTRACT_ID = "_contract_id";
+
 	private static final String CHAIN_NAME = "_chain_name";
 
 	private static final String SWITCH_NODE_PREFIX = "_switch_";
@@ -292,7 +294,17 @@ public class Slot{
 	public String getChainName() {
 		return getChainId();
 	}
-	
+
+	public void setContractId(String contractId) {
+		if (!hasMetaData(CONTRACT_ID)){
+			this.putMetaDataMap(CONTRACT_ID, contractId);
+		}
+	}
+
+	public String getContractId() {
+		return (String) metaDataMap.get(CONTRACT_ID);
+	}
+
 	public void setChainId(String chainId) {
 		if (!hasMetaData(CHAIN_NAME)){
 			this.putMetaDataMap(CHAIN_NAME, chainId);
@@ -334,7 +346,7 @@ public class Slot{
 			this.executeStepsStr = getExecuteStepStr(true);
 		}
 		if (LiteflowConfigGetter.get().getPrintExecutionLog()){
-			LOG.info("[{}]:CHAIN_NAME[{}]\n{}",getRequestId(),this.getChainName(), this.executeStepsStr);
+			LOG.info("[{}]:CONTRACT_ID[{}]:CHAIN_NAME[{}]\n{}", getRequestId(), this.getContractId(), this.getChainName(), this.executeStepsStr);
 		}
 	}
 

@@ -72,9 +72,9 @@ public class LiteFlowChainELBuilder {
         EXPRESS_RUNNER.addFunctionAndClassMethod(ChainConstant.ANY, Object.class, new AnyOperator());
         EXPRESS_RUNNER.addFunctionAndClassMethod(ChainConstant.ID, Object.class, new IdOperator());
         EXPRESS_RUNNER.addFunctionAndClassMethod(ChainConstant.IGNORE_ERROR, Object.class, new IgnoreErrorOperator());
-        EXPRESS_RUNNER.addFunctionAndClassMethod(ChainConstant.THREAD_POOL, Object.class, new ThreadPoolOperator());
-        EXPRESS_RUNNER.addFunction(ChainConstant.NODE.toUpperCase(), new NodeOperator());
-        EXPRESS_RUNNER.addFunction(ChainConstant.NODE, new NodeOperator());
+//        EXPRESS_RUNNER.addFunctionAndClassMethod(ChainConstant.THREAD_POOL, Object.class, new ThreadPoolOperator());
+//        EXPRESS_RUNNER.addFunction(ChainConstant.NODE.toUpperCase(), new NodeOperator());
+//        EXPRESS_RUNNER.addFunction(ChainConstant.NODE, new NodeOperator());
 //        EXPRESS_RUNNER.addFunction(ChainConstant.FOR, new ForOperator());
 //        EXPRESS_RUNNER.addFunction(ChainConstant.WHILE, new WhileOperator());
 //        EXPRESS_RUNNER.addFunction(ChainConstant.ITERATOR, new IteratorOperator());
@@ -98,27 +98,28 @@ public class LiteFlowChainELBuilder {
 
     /**
      * @return LiteFlowChainELBuilder
-     * @deprecated 请使用 {@link #setChainId(String)}
+     * @deprecated 请使用 {@link #setChainId(String,String)}
      */
-    public LiteFlowChainELBuilder setChainName(String chainName) {
-        if (FlowBus.containChain(chainName)) {
-            this.chain = FlowBus.getChain(chainName);
+    public LiteFlowChainELBuilder setChainName(String contractId, String chainName) {
+        if (FlowBus.containChain(contractId, chainName)) {
+            this.chain = FlowBus.getChain(contractId, chainName);
         } else {
             this.chain.setChainName(chainName);
         }
         return this;
     }
 
-    public LiteFlowChainELBuilder setChainId(String chainId) {
-        if (FlowBus.containChain(chainId)) {
-            this.chain = FlowBus.getChain(chainId);
+    public LiteFlowChainELBuilder setChainId(String contractId, String chainId) {
+        if (FlowBus.containChain(contractId, chainId)) {
+            this.chain = FlowBus.getChain(contractId, chainId);
         } else {
+            this.chain.setContractId(contractId);
             this.chain.setChainId(chainId);
         }
         return this;
     }
 
-    public LiteFlowChainELBuilder setEL(String elStr) {
+    public LiteFlowChainELBuilder setEL(String contractId, String elStr) {
         if (StrUtil.isBlank(elStr)) {
             String errMsg = StrUtil.format("no content in this chain[{}]", chain.getChainId());
             throw new FlowSystemException(errMsg);
@@ -130,10 +131,14 @@ public class LiteFlowChainELBuilder {
 
             //这里一定要先放chain，再放node，因为node优先于chain，所以当重名时，node会覆盖掉chain
             //往上下文里放入所有的chain，是的el表达式可以直接引用到chain
-            FlowBus.getChainMap().values().forEach(chain -> context.put(chain.getChainId(), chain));
+            if (FlowBus.getChainMap().containsKey(contractId)) {
+                FlowBus.getChainMap().get(contractId).values().forEach(chain -> context.put(chain.getChainId(), chain));
+            }
 
             //往上下文里放入所有的node，使得el表达式可以直接引用到nodeId
-            FlowBus.getNodeMap().keySet().forEach(nodeId -> context.put(nodeId, FlowBus.getNode(nodeId)));
+            if (FlowBus.getNodeMap().containsKey(contractId)) {
+                FlowBus.getNodeMap().get(contractId).values().forEach(node -> context.put(node.getId(), node));
+            }
 
             //放入当前主chain的ID
             context.put(ChainConstant.CURR_CHAIN_ID, this.chain.getChainId());
@@ -162,7 +167,7 @@ public class LiteFlowChainELBuilder {
             // EL 底层会包装异常，这里是曲线处理
             if (Objects.equals(e.getCause().getMessage(), DataNotFoundException.MSG)) {
                 // 构建错误信息
-                String msg = buildDataNotFoundExceptionMsg(elStr);
+                String msg = buildDataNotFoundExceptionMsg(contractId, elStr);
                 throw new ELParseException(msg);
             }
             throw new ELParseException(e.getCause().getMessage());
@@ -177,9 +182,9 @@ public class LiteFlowChainELBuilder {
      * @param elStr EL表达式
      * @return true 校验成功 false 校验失败
      */
-    public static boolean validate(String elStr) {
+    public static boolean validate(String contractId, String elStr) {
         try {
-            LiteFlowChainELBuilder.createChain().setEL(elStr);
+            LiteFlowChainELBuilder.createChain().setEL(contractId, elStr);
             return Boolean.TRUE;
         } catch (ELParseException e) {
             LOG.error(e.getMessage());
@@ -187,12 +192,12 @@ public class LiteFlowChainELBuilder {
         return Boolean.FALSE;
     }
 
-    public void build() {
+    public void build(String contractId) {
         this.chain.setConditionList(this.conditionList);
 
         checkBuild();
 
-        FlowBus.addChain(this.chain);
+        FlowBus.addChain(contractId, this.chain);
     }
 
     //#region private method
@@ -215,7 +220,7 @@ public class LiteFlowChainELBuilder {
      *
      * @param elStr el 表达式
      */
-    private String buildDataNotFoundExceptionMsg(String elStr) {
+    private String buildDataNotFoundExceptionMsg(String contractId, String elStr) {
         String msg = String.format("[node/chain is not exist or node/chain not register]\n EL: %s", StrUtil.trim(elStr));
         try {
             InstructionSet parseResult = EXPRESS_RUNNER.getInstructionSetFromLocalCache(elStr);
@@ -228,8 +233,8 @@ public class LiteFlowChainELBuilder {
                 return msg;
             }
 
-            List<String> chainIds = CollUtil.map(FlowBus.getChainMap().values(), Chain::getChainId, true);
-            List<String> nodeIds = CollUtil.map(FlowBus.getNodeMap().values(), Node::getId, true);
+            List<String> chainIds = CollUtil.map(FlowBus.getChainMap().get(contractId).values(), Chain::getChainId, true);
+            List<String> nodeIds = CollUtil.map(FlowBus.getNodeMap().get(contractId).values(), Node::getId, true);
             for (String attrName : outAttrNames) {
                 if (!chainIds.contains(attrName) && !nodeIds.contains(attrName)) {
                     msg = String.format("[%s] is not exist or [%s] is not registered, you need to define a node or chain with id [%s] and register it \n EL: ", attrName, attrName, attrName);

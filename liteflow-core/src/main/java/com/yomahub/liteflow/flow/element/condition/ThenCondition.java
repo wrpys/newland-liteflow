@@ -7,9 +7,11 @@
  */
 package com.yomahub.liteflow.flow.element.condition;
 
+import com.yomahub.liteflow.enums.CmpStepTypeEnum;
 import com.yomahub.liteflow.enums.ConditionTypeEnum;
 import com.yomahub.liteflow.exception.ChainEndException;
 import com.yomahub.liteflow.flow.element.Executable;
+import com.yomahub.liteflow.flow.entity.CmpStep;
 import com.yomahub.liteflow.slot.DataBus;
 import com.yomahub.liteflow.slot.Slot;
 
@@ -40,6 +42,12 @@ public class ThenCondition extends Condition {
 	@Override
 	public void execute(Integer slotIndex) throws Exception {
 		try{
+
+			//在元数据里加入step信息
+			Slot slot = DataBus.getSlot(slotIndex);
+			CmpStep cmpStep = new CmpStep(this.getId(), this.getId(), CmpStepTypeEnum.SINGLE);
+			slot.addStep(cmpStep);
+
 			for (PreCondition preCondition : preConditionList){
 				preCondition.setCurrChainId(this.getCurrChainId());
 				preCondition.execute(slotIndex);

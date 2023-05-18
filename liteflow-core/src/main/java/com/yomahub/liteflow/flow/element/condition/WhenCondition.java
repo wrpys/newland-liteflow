@@ -8,8 +8,10 @@
 package com.yomahub.liteflow.flow.element.condition;
 
 import cn.hutool.core.util.StrUtil;
+import com.yomahub.liteflow.enums.CmpStepTypeEnum;
 import com.yomahub.liteflow.enums.ConditionTypeEnum;
 import com.yomahub.liteflow.exception.WhenExecuteException;
+import com.yomahub.liteflow.flow.entity.CmpStep;
 import com.yomahub.liteflow.flow.parallel.CompletableFutureTimeout;
 import com.yomahub.liteflow.flow.parallel.ParallelSupplier;
 import com.yomahub.liteflow.flow.parallel.WhenFutureObj;
@@ -52,6 +54,11 @@ public class WhenCondition extends Condition {
 
 	@Override
 	public void execute(Integer slotIndex) throws Exception {
+		//在元数据里加入step信息
+		Slot slot = DataBus.getSlot(slotIndex);
+		CmpStep cmpStep = new CmpStep(this.getId(), this.getId(), CmpStepTypeEnum.SINGLE);
+		slot.addStep(cmpStep);
+
 		executeAsyncCondition(slotIndex);
 	}
 

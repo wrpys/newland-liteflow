@@ -5,6 +5,8 @@ package com.yomahub.liteflow.builder.prop;
  */
 public class NodePropBean {
 
+	String contractId;
+
 	/**
 	 * id
 	 */
@@ -34,6 +36,15 @@ public class NodePropBean {
 	 * 脚本存放位置
 	 */
 	String file;
+
+	public String getContractId() {
+		return contractId;
+	}
+
+	public NodePropBean setContractId(String contractId) {
+		this.contractId = contractId;
+		return this;
+	}
 
 	public String getId() {
 		return id;

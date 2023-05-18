@@ -2,6 +2,7 @@ package com.yomahub.liteflow.builder.el.operator;
 
 import com.yomahub.liteflow.builder.el.operator.base.BaseOperator;
 import com.yomahub.liteflow.builder.el.operator.base.OperatorHelper;
+import com.yomahub.liteflow.common.ChainConstant;
 import com.yomahub.liteflow.flow.element.Executable;
 import com.yomahub.liteflow.flow.element.condition.PreCondition;
 
@@ -18,6 +19,7 @@ public class PreOperator extends BaseOperator<PreCondition> {
         OperatorHelper.checkObjectSizeGtZero(objects);
 
         PreCondition preCondition = new PreCondition();
+        preCondition.setId(ChainConstant.PRE);
         for (Object obj : objects) {
             preCondition.addExecutable(OperatorHelper.convert(obj, Executable.class));
         }

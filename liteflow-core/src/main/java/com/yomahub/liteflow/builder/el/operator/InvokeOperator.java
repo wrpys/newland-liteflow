@@ -4,6 +4,7 @@ import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.util.StrUtil;
 import com.yomahub.liteflow.builder.el.operator.base.BaseOperator;
 import com.yomahub.liteflow.builder.el.operator.base.OperatorHelper;
+import com.yomahub.liteflow.common.ChainConstant;
 import com.yomahub.liteflow.core.NodeInvokeComponent;
 import com.yomahub.liteflow.enums.NodeTypeEnum;
 import com.yomahub.liteflow.flow.element.Node;
@@ -44,6 +45,7 @@ public class InvokeOperator extends BaseOperator<InvokeCondition> {
         node.setType(NodeTypeEnum.INVOKE);
 
         InvokeCondition invokeCondition = new InvokeCondition();
+        invokeCondition.setId(ChainConstant.INVOKE);
         invokeCondition.setExecutableList(ListUtil.toList(node));
         return invokeCondition;
     }

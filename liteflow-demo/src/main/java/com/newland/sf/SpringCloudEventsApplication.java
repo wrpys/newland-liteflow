@@ -75,14 +75,14 @@ public class SpringCloudEventsApplication {
     }
 
     @GetMapping("test2")
-    public String execute2(@RequestParam("chainId") String chainId) {
+    public String execute2(@RequestParam("contractId") String contractId, @RequestParam("chainId") String chainId) {
 
         ContractContext<Cdr> contractContext = new ContractContext<>();
         Cdr cdr = new Cdr();
-        cdr.setContractId(chainId);
+        cdr.setContractId(contractId);
         contractContext.setInput(cdr);
 
-        LiteflowResponse response = flowExecutor.execute2Resp(chainId, null, contractContext);
+        LiteflowResponse response = flowExecutor.execute2Resp(contractId, chainId, null, contractContext);
         return response.getMessage();
     }
 

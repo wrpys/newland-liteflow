@@ -1,10 +1,12 @@
 package com.yomahub.liteflow.flow.element.condition;
 
 import cn.hutool.core.collection.ListUtil;
+import com.yomahub.liteflow.enums.CmpStepTypeEnum;
 import com.yomahub.liteflow.enums.ConditionTypeEnum;
 import com.yomahub.liteflow.enums.NodeTypeEnum;
 import com.yomahub.liteflow.exception.IfTypeErrorException;
 import com.yomahub.liteflow.flow.element.Node;
+import com.yomahub.liteflow.flow.entity.CmpStep;
 import com.yomahub.liteflow.slot.DataBus;
 import com.yomahub.liteflow.slot.Slot;
 import com.yomahub.liteflow.util.LiteFlowProxyUtil;
@@ -19,12 +21,16 @@ public class InvokeCondition extends Condition {
 
     @Override
     public void execute(Integer slotIndex) throws Exception {
+        //在元数据里加入step信息
+        Slot slot = DataBus.getSlot(slotIndex);
+        CmpStep cmpStep = new CmpStep(this.getId(), this.getId(), CmpStepTypeEnum.SINGLE);
+        slot.addStep(cmpStep);
+
         if (ListUtil.toList(NodeTypeEnum.INVOKE).contains(getInvokeNode().getType())) {
             //先执行Invoke节点
             this.getInvokeNode().setCurrChainId(this.getCurrChainId());
             this.getInvokeNode().execute(slotIndex);
 
-            Slot slot = DataBus.getSlot(slotIndex);
             //这里可能会有spring代理过的bean，所以拿到user原始的class
             Class<?> originalClass = LiteFlowProxyUtil.getUserClass(this.getInvokeNode().getInstance().getClass());
             //拿到Invoke执行过的结果

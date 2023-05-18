@@ -3,11 +3,13 @@ package com.yomahub.liteflow.flow.element.condition;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.yomahub.liteflow.enums.CmpStepTypeEnum;
 import com.yomahub.liteflow.enums.ConditionTypeEnum;
 import com.yomahub.liteflow.enums.NodeTypeEnum;
 import com.yomahub.liteflow.exception.*;
 import com.yomahub.liteflow.flow.element.Executable;
 import com.yomahub.liteflow.flow.element.Node;
+import com.yomahub.liteflow.flow.entity.CmpStep;
 import com.yomahub.liteflow.slot.DataBus;
 import com.yomahub.liteflow.slot.Slot;
 import com.yomahub.liteflow.util.LiteFlowProxyUtil;
@@ -65,6 +67,16 @@ public class IfCondition extends Condition {
 
                     //执行falseCaseExecutableItem
                     falseCaseExecutableItem.setCurrChainId(this.getCurrChainId());
+
+                    //添加 ELSE 步骤信息
+                    if (falseCaseExecutableItem instanceof IfCondition) {
+
+                    } else {
+                        //在元数据里加入step信息
+                        CmpStep cmpStep = new CmpStep("ELSE", "ELSE", CmpStepTypeEnum.SINGLE);
+                        slot.addStep(cmpStep);
+                    }
+
                     falseCaseExecutableItem.execute(slotIndex);
                 }
             }

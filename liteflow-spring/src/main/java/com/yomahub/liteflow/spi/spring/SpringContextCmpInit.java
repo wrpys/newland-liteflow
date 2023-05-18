@@ -15,11 +15,11 @@ import java.util.Map;
 public class SpringContextCmpInit implements ContextCmpInit {
     @Override
     public void initCmp() {
-        for (Map.Entry<String, NodeComponent> componentEntry : ComponentScanner.nodeComponentMap.entrySet()) {
-            if (!FlowBus.containNode(componentEntry.getKey())) {
-                FlowBus.addSpringScanNode(componentEntry.getKey(), componentEntry.getValue());
-            }
-        }
+//        for (Map.Entry<String, NodeComponent> componentEntry : ComponentScanner.nodeComponentMap.entrySet()) {
+//            if (!FlowBus.containNode(componentEntry.getKey())) {
+//                FlowBus.addSpringScanNode(componentEntry.getKey(), componentEntry.getValue());
+//            }
+//        }
     }
 
     @Override

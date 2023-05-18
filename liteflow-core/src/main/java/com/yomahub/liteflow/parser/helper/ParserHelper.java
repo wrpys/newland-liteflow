@@ -41,6 +41,7 @@ public class ParserHelper {
 	 * @param nodePropBean 构建 node 的中间属性
 	 */
 	public static void buildNode(NodePropBean nodePropBean) {
+		String contractId = nodePropBean.getContractId();
 		String id = nodePropBean.getId();
 		String name = nodePropBean.getName();
 		String clazz = nodePropBean.getClazz();
@@ -77,6 +78,7 @@ public class ParserHelper {
 
 		//进行node的build过程
 		LiteFlowNodeBuilder.createNode()
+				.setContractId(contractId)
 				.setId(id)
 				.setName(name)
 				.setClazz(clazz)
@@ -95,10 +97,12 @@ public class ParserHelper {
 		String id = funPropBean.getId();
 		String name = funPropBean.getName();
 		String version = funPropBean.getVersion();
+		String contractId = funPropBean.getContractId();
 		NodeTypeEnum nodeTypeEnum = NodeTypeEnum.getEnumByCode(funPropBean.getType());
 
 		//进行fun的build过程
 		LiteFlowNodeBuilder.createNode()
+				.setContractId(contractId)
 				.setId(id)
 				.setName(name)
 				.setVersion(version).setType(nodeTypeEnum)
@@ -115,7 +119,13 @@ public class ParserHelper {
 	 */
 	public static void parseNodeDocument(List<Document> documentList) {
 		for (Document document : documentList) {
+
 			Element rootElement = document.getRootElement();
+			// name、version
+			String contractName = rootElement.attributeValue("name");
+			String contractVersion = rootElement.attributeValue("version");
+			String contractId = contractName + "-" + contractVersion + ".xml";
+
 			Element nodesElement = rootElement.element(NODES);
 			// 当存在<nodes>节点定义时，解析node节点
 			if (ObjectUtil.isNotNull(nodesElement)) {
@@ -130,7 +140,7 @@ public class ParserHelper {
 					file = e.attributeValue(FILE);
 
 					// 构建 node
-					NodePropBean nodePropBean = new NodePropBean()
+					NodePropBean nodePropBean = new NodePropBean().setContractId(contractId)
 							.setId(id)
 							.setName(name)
 							.setClazz(clazz)
@@ -155,6 +165,11 @@ public class ParserHelper {
 	public static void parseFunDocument(List<Document> documentList) {
 		for (Document document : documentList) {
 			Element rootElement = document.getRootElement();
+			// name、version
+			String contractName = rootElement.attributeValue("name");
+			String contractVersion = rootElement.attributeValue("version");
+			String contractId = contractName + "-" + contractVersion + ".xml";
+
 			Element funsElement = rootElement.element(FUNS);
 			// 当存在<funs>节点定义时，解析fun节点
 			if (ObjectUtil.isNotNull(funsElement)) {
@@ -166,7 +181,7 @@ public class ParserHelper {
 					version = e.attributeValue(VERSION);
 
 					// 构建 fun
-					FunPropBean funPropBean = new FunPropBean().setId(id)
+					FunPropBean funPropBean = new FunPropBean().setContractId(contractId).setId(id)
 							.setName(name).setVersion(version).setType(NodeTypeEnum.FUN.getCode());
 
 					ParserHelper.buildFun(funPropBean);
@@ -175,7 +190,7 @@ public class ParserHelper {
 		}
 	}
  
-	public static void parseChainDocument(List<Document> documentList, Set<String> chainNameSet, Consumer<Element> parseOneChainConsumer){
+	public static void parseChainDocument(List<Document> documentList, Set<String> chainNameSet){
 		//先在元数据里放上chain
 		//先放有一个好处，可以在parse的时候先映射到FlowBus的chainMap，然后再去解析
 		//这样就不用去像之前的版本那样回归调用
@@ -189,7 +204,7 @@ public class ParserHelper {
 			if (StringUtils.isEmpty(name) || StringUtils.isEmpty(version)) {
 				throw new RuntimeException("name or version is null");
 			}
-			String id = name + "_" + version;
+			String contractId = name + "-" + version + ".xml";
 
 			// 解析chain节点
 			List<Element> chainList = document.getRootElement().elements(CHAIN);
@@ -203,7 +218,7 @@ public class ParserHelper {
 					throw new ChainDuplicateException(String.format("[chain name duplicate] chainName=%s", chainName));
 				}
 
-				FlowBus.addChain(chainName);
+				FlowBus.addChain(contractId, chainName);
 			});
 		});
 		// 清空
@@ -215,10 +230,12 @@ public class ParserHelper {
 			// name、version
 			String name = rootElement.attributeValue("name");
 			String version = rootElement.attributeValue("version");
-			String id = name + "_" + version;
+			String contractId = name + "-" + version + ".xml";
 
 			List<Element> chainList = rootElement.elements(CHAIN);
-			chainList.forEach(parseOneChainConsumer);
+			chainList.forEach(chain -> {
+				ParserHelper.parseOneChainEl(contractId, chain);
+			});
 		}
 	}
 
@@ -286,31 +303,31 @@ public class ParserHelper {
 //		}
 //	}
 
-	/**
-	 * 解析一个chain的过程
-	 *
-	 * @param chainNode chain 节点
-	 */
-	public static void parseOneChainEl(JsonNode chainNode) {
-		//构建chainBuilder
-		String chainId = Optional.ofNullable(chainNode.get(ID)).orElse(chainNode.get(NAME)).textValue();
-		String el = chainNode.get(VALUE).textValue();
-		LiteFlowChainELBuilder chainELBuilder = LiteFlowChainELBuilder.createChain().setChainId(chainId);
-		chainELBuilder.setEL(el).build();
-	}
+//	/**
+//	 * 解析一个chain的过程
+//	 *
+//	 * @param chainNode chain 节点
+//	 */
+//	public static void parseOneChainEl(JsonNode chainNode) {
+//		//构建chainBuilder
+//		String chainId = Optional.ofNullable(chainNode.get(ID)).orElse(chainNode.get(NAME)).textValue();
+//		String el = chainNode.get(VALUE).textValue();
+//		LiteFlowChainELBuilder chainELBuilder = LiteFlowChainELBuilder.createChain().setChainId(chainId);
+//		chainELBuilder.setEL(el).build();
+//	}
 
 	/**
 	 * 解析一个chain的过程
 	 *
 	 * @param e chain 节点
 	 */
-	public static void parseOneChainEl(Element e) {
+	public static void parseOneChainEl(String contractId, Element e) {
 		//构建chainBuilder
 		String chainId = Optional.ofNullable(e.attributeValue(ID)).orElse(e.attributeValue(NAME));
 		String text = e.getText();
 		String el = RegexUtil.removeComments(text);
-		LiteFlowChainELBuilder chainELBuilder = LiteFlowChainELBuilder.createChain().setChainId(chainId);
-		chainELBuilder.setEL(el).build();
+		LiteFlowChainELBuilder chainELBuilder = LiteFlowChainELBuilder.createChain().setChainId(contractId, chainId);
+		chainELBuilder.setEL(contractId, el).build(contractId);
 	}
 
 	private static class RegexUtil{

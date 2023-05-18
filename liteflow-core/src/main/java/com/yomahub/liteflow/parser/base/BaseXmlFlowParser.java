@@ -38,14 +38,14 @@ public abstract class BaseXmlFlowParser implements FlowParser {
 
 		ParserHelper.parseNodeDocument(documentList);
 		ParserHelper.parseFunDocument(documentList);
-		ParserHelper.parseChainDocument(documentList, CHAIN_NAME_SET, this::parseOneChain);
+		ParserHelper.parseChainDocument(documentList, CHAIN_NAME_SET);
 	}
 
-	/**
-	 * 解析一个 chain 的过程
-	 *
-	 * @param chain chain
-	 */
-	public abstract void parseOneChain(Element chain);
+//	/**
+//	 * 解析一个 chain 的过程
+//	 *
+//	 * @param chain chain
+//	 */
+//	public abstract void parseOneChain(Element chain);
 
 }

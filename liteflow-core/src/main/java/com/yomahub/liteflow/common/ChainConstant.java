@@ -39,7 +39,7 @@ public interface ChainConstant {
 
     String WHEN = "WHEN";
 
-    String SWITCH = "SWITCH";
+//    String SWITCH = "SWITCH";
 
     String PRE = "PRE";
 
@@ -61,7 +61,7 @@ public interface ChainConstant {
 
     String IGNORE_ERROR = "ignoreError";
 
-    String THREAD_POOL = "threadPool";
+//    String THREAD_POOL = "threadPool";
 
 //    String WHILE = "WHILE";
 

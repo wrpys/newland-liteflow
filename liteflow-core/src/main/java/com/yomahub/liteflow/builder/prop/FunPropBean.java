@@ -5,6 +5,8 @@ package com.yomahub.liteflow.builder.prop;
  */
 public class FunPropBean {
 
+    String contractId;
+
     /**
      * id
      */
@@ -24,6 +26,15 @@ public class FunPropBean {
      * 类型
      */
     String type;
+
+    public String getContractId() {
+        return contractId;
+    }
+
+    public FunPropBean setContractId(String contractId) {
+        this.contractId = contractId;
+        return this;
+    }
 
     public String getId() {
         return id;

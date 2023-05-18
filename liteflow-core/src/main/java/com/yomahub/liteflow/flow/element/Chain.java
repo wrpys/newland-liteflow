@@ -9,7 +9,9 @@
 package com.yomahub.liteflow.flow.element;
 
 import cn.hutool.core.collection.CollUtil;
+import com.yomahub.liteflow.enums.CmpStepTypeEnum;
 import com.yomahub.liteflow.exception.ChainEndException;
+import com.yomahub.liteflow.flow.entity.CmpStep;
 import com.yomahub.liteflow.slot.DataBus;
 import com.yomahub.liteflow.slot.Slot;
 import com.yomahub.liteflow.enums.ExecuteTypeEnum;
@@ -29,17 +31,21 @@ public class Chain implements Executable {
 
     private static final Logger LOG = LoggerFactory.getLogger(Chain.class);
 
+    private String contractId;
+
     private String chainId;
 
     private List<Condition> conditionList = new ArrayList<>();
 
-    public Chain(String chainName){
+    public Chain(String contractId, String chainName){
+        this.contractId = contractId;
         this.chainId = chainName;
     }
 
     public Chain(){}
 
-    public Chain(String chainName, List<Condition> conditionList) {
+    public Chain(String contractId, String chainName, List<Condition> conditionList) {
+        this.contractId = contractId;
         this.chainId = chainName;
         this.conditionList = conditionList;
     }
@@ -68,7 +74,15 @@ public class Chain implements Executable {
     public void setChainName(String chainName) {
         this.chainId = chainName;
     }
-    
+
+    public String getContractId() {
+        return contractId;
+    }
+
+    public void setContractId(String contractId) {
+        this.contractId = contractId;
+    }
+
     public String getChainId() {
         return chainId;
     }
@@ -85,11 +99,17 @@ public class Chain implements Executable {
         }
         Slot slot = DataBus.getSlot(slotIndex);
         try {
+            slot.setContractId(contractId);
             //设置主ChainName
             slot.setChainId(chainId);
             //执行主体Condition
             for (Condition condition : conditionList) {
                 condition.setCurrChainId(chainId);
+
+                //在元数据里加入step信息
+                CmpStep cmpStep = new CmpStep(chainId, chainId, CmpStepTypeEnum.SINGLE);
+                slot.addStep(cmpStep);
+
                 condition.execute(slotIndex);
             }
         }catch (ChainEndException e){

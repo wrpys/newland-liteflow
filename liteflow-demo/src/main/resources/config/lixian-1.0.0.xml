@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <flow name="lixian" version="1.0.0">
+
+    <funs>
+        <fun id="chachong2" name="chachong" version="1.0.1" />
+        <fun id="yaosuqiuqu2" name="yaosuqiuqu" version="1.0.1" />
+        <fun id="pijia2" name="pijia" version="1.0.1" />
+        <fun id="koukuan2" name="koukuan" version="1.0.1" />
+    </funs>
+
     <chain name="lixian-1.0.0">
         IF('input.chachongData!=null', INVOKE('yaosuqiuqu', '1.0.0'))
         .ELIF('input.yaosuqiuquData!=null', INVOKE('pijia', '1.0.0'))

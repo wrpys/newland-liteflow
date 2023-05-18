@@ -40,6 +40,8 @@ public abstract class NodeComponent{
 
 	private MonitorBus monitorBus;
 
+	private String contractId;
+
 	private String nodeId;
 
 	private String name;
@@ -209,6 +211,14 @@ public abstract class NodeComponent{
 		return this.getSlot().getContextBean(contextBeanClazz);
 	}
 
+	public String getContractId() {
+		return contractId;
+	}
+
+	public void setContractId(String contractId) {
+		this.contractId = contractId;
+	}
+
 	public String getNodeId() {
 		return nodeId;
 	}
@@ -354,20 +364,20 @@ public abstract class NodeComponent{
 	}
 
 	@Deprecated
-	public void invoke(String chainId, Object param) throws Exception {
-		FlowExecutorHolder.loadInstance().invoke(chainId, param, this.getSlotIndex());
+	public void invoke(String contractId, String chainId, Object param) throws Exception {
+		FlowExecutorHolder.loadInstance().invoke(contractId, chainId, param, this.getSlotIndex());
 	}
 
-	public LiteflowResponse invoke2Resp(String chainId, Object param) {
-		return FlowExecutorHolder.loadInstance().invoke2Resp(chainId, param, this.getSlotIndex());
+	public LiteflowResponse invoke2Resp(String contractId, String chainId, Object param) {
+		return FlowExecutorHolder.loadInstance().invoke2Resp(contractId, chainId, param, this.getSlotIndex());
 	}
 
 	@Deprecated
-	public void invokeInAsync(String chainId, Object param) throws Exception {
-		FlowExecutorHolder.loadInstance().invokeInAsync(chainId, param, this.getSlotIndex());
+	public void invokeInAsync(String contractId, String chainId, Object param) throws Exception {
+		FlowExecutorHolder.loadInstance().invokeInAsync(contractId, chainId, param, this.getSlotIndex());
 	}
 
-	public LiteflowResponse invoke2RespInAsync(String chainId, Object param) {
-		return FlowExecutorHolder.loadInstance().invoke2RespInAsync(chainId, param, this.getSlotIndex());
+	public LiteflowResponse invoke2RespInAsync(String contractId, String chainId, Object param) {
+		return FlowExecutorHolder.loadInstance().invoke2RespInAsync(contractId, chainId, param, this.getSlotIndex());
 	}
 }

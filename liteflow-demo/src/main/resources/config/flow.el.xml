@@ -17,10 +17,10 @@
     </funs>
 
     <chain name="chain1">
-        THEN(chachong, yaosuqiuqu, pijia, koukuan);
+        THEN(chachong, yaosuqiuqu, pijia, koukuan, chain2);
     </chain>
     <chain name="chain2">
-        THEN(b, a, c);
+        THEN(IF('input.contractId == "test"', b).ELIF('input.contractId == "flow.el-1.0.0.xml"', a).ELSE(c), chachong);
     </chain>
     <chain name="chain3">
         THEN(c, a, b);

@@ -2,6 +2,7 @@ package com.yomahub.liteflow.builder.el.operator;
 
 import com.yomahub.liteflow.builder.el.operator.base.BaseOperator;
 import com.yomahub.liteflow.builder.el.operator.base.OperatorHelper;
+import com.yomahub.liteflow.common.ChainConstant;
 import com.yomahub.liteflow.flow.element.Executable;
 import com.yomahub.liteflow.flow.element.condition.WhenCondition;
 
@@ -17,6 +18,7 @@ public class WhenOperator extends BaseOperator<WhenCondition> {
         OperatorHelper.checkObjectSizeGtZero(objects);
 
         WhenCondition whenCondition = new WhenCondition();
+        whenCondition.setId(ChainConstant.WHEN);
         for (Object obj : objects) {
             whenCondition.addExecutable(OperatorHelper.convert(obj, Executable.class));
         }

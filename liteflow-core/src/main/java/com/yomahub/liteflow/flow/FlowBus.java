@@ -39,51 +39,57 @@ public class FlowBus {
 
     private static final Logger LOG = LoggerFactory.getLogger(FlowBus.class);
 
-    private static final Map<String, Chain> chainMap = new CopyOnWriteHashMap<>();
+    private static final Map<String, Map<String, Chain>> chainMap = new CopyOnWriteHashMap<>();
 
-    private static final Map<String, Node> nodeMap = new CopyOnWriteHashMap<>();
+    private static final Map<String, Map<String, Node>> nodeMap = new CopyOnWriteHashMap<>();
 
     private FlowBus() {
     }
 
-    public static Chain getChain(String id) {
-        return chainMap.get(id);
+    public static Chain getChain(String contractId, String id) {
+        return chainMap.get(contractId).get(id);
     }
 
     //这一方法主要用于第一阶段chain的预装载
-    public static void addChain(String chainName) {
-        if (!chainMap.containsKey(chainName)) {
-            chainMap.put(chainName, new Chain(chainName));
+    public static void addChain(String contractId, String chainName) {
+        if (!chainMap.containsKey(contractId)) {
+            chainMap.put(contractId, new CopyOnWriteHashMap<>());
+        }
+        if (!chainMap.get(contractId).containsKey(chainName)) {
+            chainMap.get(contractId).put(chainName, new Chain(contractId, chainName));
         }
     }
 
     //这个方法主要用于第二阶段的替换chain
-    public static void addChain(Chain chain) {
-        chainMap.put(chain.getChainId(), chain);
+    public static void addChain(String contractId, Chain chain) {
+        if (!chainMap.containsKey(contractId)) {
+            chainMap.put(contractId, new CopyOnWriteHashMap<>());
+        }
+        chainMap.get(contractId).put(chain.getChainId(), chain);
     }
 
-    public static boolean containChain(String chainId) {
-        return chainMap.containsKey(chainId);
+    public static boolean containChain(String contractId, String chainId) {
+        return chainMap.containsKey(contractId) && chainMap.get(contractId).containsKey(chainId);
     }
 
     public static boolean needInit() {
         return MapUtil.isEmpty(chainMap);
     }
 
-    public static boolean containNode(String nodeId) {
-        return nodeMap.containsKey(nodeId);
+    public static boolean containNode(String contractId, String nodeId) {
+        return nodeMap.containsKey(contractId) && nodeMap.get(contractId).containsKey(nodeId);
     }
 
-    public static void addSpringScanNode(String nodeId, NodeComponent nodeComponent) {
-        //根据class来猜测类型
-        NodeTypeEnum type = NodeTypeEnum.guessType(nodeComponent.getClass());
-
-        if (type == null) {
-            throw new NullNodeTypeException(StrUtil.format("node type is null for node[{}]", nodeId));
-        }
-
-        nodeMap.put(nodeId, new Node(ComponentInitializer.loadInstance().initComponent(nodeComponent, type, null, nodeId)));
-    }
+//    public static void addSpringScanNode(String nodeId, NodeComponent nodeComponent) {
+//        //根据class来猜测类型
+//        NodeTypeEnum type = NodeTypeEnum.guessType(nodeComponent.getClass());
+//
+//        if (type == null) {
+//            throw new NullNodeTypeException(StrUtil.format("node type is null for node[{}]", nodeId));
+//        }
+//
+//        nodeMap.put(nodeId, new Node(ComponentInitializer.loadInstance().initComponent(nodeComponent, type, null, nodeId)));
+//    }
 
     /**
      * 添加 node
@@ -93,8 +99,8 @@ public class FlowBus {
      * @param type     节点类型
      * @param cmpClazz 节点组件类
      */
-    public static void addNode(String nodeId, String name, NodeTypeEnum type, Class<?> cmpClazz) {
-        addNode(nodeId, name, type, cmpClazz, null);
+    public static void addNode(String contractId, String nodeId, String name, NodeTypeEnum type, Class<?> cmpClazz) {
+        addNode(contractId, nodeId, name, type, cmpClazz, null);
     }
 
     /**
@@ -105,14 +111,14 @@ public class FlowBus {
      * @param nodeType    节点类型
      * @param cmpClazzStr 节点组件类路径
      */
-    public static void addNode(String nodeId, String name, NodeTypeEnum nodeType, String cmpClazzStr) {
+    public static void addNode(String contractId, String nodeId, String name, NodeTypeEnum nodeType, String cmpClazzStr) {
         Class<?> cmpClazz;
         try {
             cmpClazz = Class.forName(cmpClazzStr);
         } catch (Exception e) {
             throw new ComponentCannotRegisterException(e.getMessage());
         }
-        addNode(nodeId, name, nodeType, cmpClazz, null);
+        addNode(contractId, nodeId, name, nodeType, cmpClazz, null);
     }
 
 //    /**
@@ -135,7 +141,7 @@ public class FlowBus {
      * @param nodeType 节点类型
      * @param version  版本
      */
-    public static void addFunNode(String nodeId, String name, NodeTypeEnum nodeType, String version) {
+    public static void addFunNode(String contractId, String nodeId, String name, NodeTypeEnum nodeType, String version) {
         try {
             List<NodeComponent> cmpInstances = new ArrayList<>();
             NodeComponent instance = new NodeFunComponent() {
@@ -163,12 +169,15 @@ public class FlowBus {
             //初始化Node，把component放到Node里去
             List<Node> nodes = cmpInstances.stream().map(Node::new).collect(Collectors.toList());
 
+            if (!nodeMap.containsKey(contractId)) {
+                nodeMap.put(contractId, new CopyOnWriteHashMap<>());
+            }
 
             for (int i = 0; i < nodes.size(); i++) {
                 Node node = nodes.get(i);
                 NodeComponent cmpInstance = cmpInstances.get(i);
                 String activeNodeId = StrUtil.isEmpty(cmpInstance.getNodeId()) ? nodeId : cmpInstance.getNodeId();
-                nodeMap.put(activeNodeId, node);
+                nodeMap.get(contractId).put(activeNodeId, node);
             }
 
         } catch (Exception e) {
@@ -178,7 +187,7 @@ public class FlowBus {
         }
     }
 
-    private static void addNode(String nodeId, String name, NodeTypeEnum type, Class<?> cmpClazz, String script) {
+    private static void addNode(String contractId, String nodeId, String name, NodeTypeEnum type, Class<?> cmpClazz, String script) {
         try {
             //判断此类是否是声明式的组件，如果是声明式的组件，就用动态代理生成实例
             //如果不是声明式的，就用传统的方式进行判断
@@ -225,6 +234,10 @@ public class FlowBus {
             List<Node> nodes = cmpInstances.stream().map(Node::new).collect(Collectors.toList());
 
 
+            if (!nodeMap.containsKey(contractId)) {
+                nodeMap.put(contractId, new CopyOnWriteHashMap<>());
+            }
+
             for (int i = 0; i < nodes.size(); i++) {
                 Node node = nodes.get(i);
                 NodeComponent cmpInstance = cmpInstances.get(i);
@@ -240,7 +253,7 @@ public class FlowBus {
 //                }
 
                 String activeNodeId = StrUtil.isEmpty(cmpInstance.getNodeId()) ? nodeId : cmpInstance.getNodeId();
-                nodeMap.put(activeNodeId, node);
+                nodeMap.get(contractId).put(activeNodeId, node);
             }
 
         } catch (Exception e) {
@@ -250,27 +263,27 @@ public class FlowBus {
         }
     }
 
-    public static Node getNode(String nodeId) {
-        return nodeMap.get(nodeId);
+    public static Node getNode(String contractId, String nodeId) {
+        return nodeMap.get(contractId).get(nodeId);
     }
 
     //虽然实现了cloneable，但是还是浅copy，因为condNodeMap这个对象还是共用的。
     //那condNodeMap共用有关系么，原则上没有关系。但是从设计理念上，以后应该要分开
     //tag和condNodeMap这2个属性不属于全局概念，属于每个chain范围的属性
-    public static Node copyNode(String nodeId) {
+    public static Node copyNode(String contractId, String nodeId) {
         try {
-            Node node = nodeMap.get(nodeId);
+            Node node = nodeMap.get(contractId).get(nodeId);
             return node.copy();
         } catch (Exception e) {
             return null;
         }
     }
 
-    public static Map<String, Node> getNodeMap() {
+    public static Map<String, Map<String, Node>> getNodeMap() {
         return nodeMap;
     }
 
-    public static Map<String, Chain> getChainMap() {
+    public static Map<String, Map<String, Chain>> getChainMap() {
         return chainMap;
     }
 
@@ -301,9 +314,9 @@ public class FlowBus {
 //        }
 //    }
 
-    public static boolean removeChain(String chainId) {
-        if (containChain(chainId)) {
-            chainMap.remove(chainId);
+    public static boolean removeChain(String contractId, String chainId) {
+        if (containChain(contractId, chainId)) {
+            chainMap.get(contractId).remove(chainId);
             return true;
         } else {
             String errMsg = StrUtil.format("cannot find the chain[{}]", chainId);
@@ -312,7 +325,9 @@ public class FlowBus {
         }
     }
 
-    public static void removeChain(String... chainIds) {
-        Arrays.stream(chainIds).forEach(FlowBus::removeChain);
+    public static void removeChain(String contractId, String... chainIds) {
+        Arrays.stream(chainIds).forEach(id -> {
+            removeChain(contractId, id);
+        });
     }
 }
