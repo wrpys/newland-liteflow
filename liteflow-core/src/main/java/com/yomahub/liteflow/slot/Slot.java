@@ -222,14 +222,6 @@ public class Slot{
 		return getThreadMetaData(SWITCH_NODE_PREFIX + key);
 	}
 
-	public void setIfResult(String key, boolean result){
-		putThreadMetaDataMap(IF_NODE_PREFIX + key, result);
-	}
-
-	public boolean getIfResult(String key){
-		return getThreadMetaData(IF_NODE_PREFIX + key);
-	}
-
 	public void setInvokeResult(String key, boolean result){
 		putThreadMetaDataMap(INVOKE_PREFIX + key, result);
 	}

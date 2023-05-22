@@ -14,7 +14,14 @@ public class ContractContext<T extends Event> extends DefaultContext {
 
     private T output;
 
+    private Class<T> clazz;
 
+//    public ContractContext() {
+//    }
+
+    public ContractContext(Class<T> clazz) {
+        this.clazz = clazz;
+    }
 
     public T getInput() {
         return input;
@@ -30,5 +37,13 @@ public class ContractContext<T extends Event> extends DefaultContext {
 
     public void setOutput(T output) {
         this.output = output;
+    }
+
+    public Class<T> getClazz() {
+        return clazz;
+    }
+
+    public void setClazz(Class<T> clazz) {
+        this.clazz = clazz;
     }
 }

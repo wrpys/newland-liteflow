@@ -1,11 +1,8 @@
 package com.yomahub.liteflow.builder.el.operator;
 
-import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.util.StrUtil;
 import com.yomahub.liteflow.builder.el.operator.base.BaseOperator;
 import com.yomahub.liteflow.builder.el.operator.base.OperatorHelper;
-import com.yomahub.liteflow.core.NodeIfComponent;
-import com.yomahub.liteflow.enums.NodeTypeEnum;
 import com.yomahub.liteflow.exception.ELParseException;
 import com.yomahub.liteflow.flow.FlowBus;
 import com.yomahub.liteflow.flow.element.Executable;
@@ -35,19 +32,6 @@ public class IfOperator extends BaseOperator<IfCondition> {
             throw new ELParseException("Spring EL表达式[" + expr + "]有误，使用不存在的变量！");
         }
 
-        Node node = new Node();
-        NodeIfComponent nodeIfComponent = new NodeIfComponent() {
-            @Override
-            public String getExpr() throws Exception {
-                return expr;
-            }
-        };
-        nodeIfComponent.setSelf(nodeIfComponent);
-        nodeIfComponent.setNodeId(StrUtil.format("IF('{}')", expr));
-        node.setInstance(nodeIfComponent);
-        node.setType(NodeTypeEnum.IF);
-        node.setRunId(FlowBus.getRunId(this.getContractId()));
-
         //解析第二个参数
         Executable trueCaseExecutableItem;
         if (objects[1] instanceof Node) {
@@ -60,8 +44,9 @@ public class IfOperator extends BaseOperator<IfCondition> {
         }
 
         IfCondition ifCondition = new IfCondition();
-//        ifCondition.setRunId(FlowBus.getRunId(this.getContractId()));
-        ifCondition.setExecutableList(ListUtil.toList(node));
+        ifCondition.setId(StrUtil.format("IF('{}')", expr));
+        ifCondition.setRunId(FlowBus.getRunId(this.getContractId()));
+        ifCondition.setExpr(expr);
         ifCondition.setTrueCaseExecutableItem(trueCaseExecutableItem);
         return ifCondition;
     }

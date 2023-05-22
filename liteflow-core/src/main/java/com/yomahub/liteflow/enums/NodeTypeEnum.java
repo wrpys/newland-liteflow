@@ -1,10 +1,7 @@
 package com.yomahub.liteflow.enums;
 
 import com.yomahub.liteflow.core.NodeComponent;
-import com.yomahub.liteflow.core.NodeEndComponent;
 import com.yomahub.liteflow.core.NodeFunComponent;
-import com.yomahub.liteflow.core.NodeIfComponent;
-import com.yomahub.liteflow.core.NodeInvokeComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,11 +19,11 @@ public enum NodeTypeEnum {
 
 //	SWITCH("switch", "选择", false, NodeSwitchComponent.class),
 
-	IF("if", "条件", false, NodeIfComponent.class),
+//	IF("if", "条件", false, NodeIfComponent.class),
 
-	INVOKE("invoke", "函数调用", false, NodeInvokeComponent.class),
+//	INVOKE("invoke", "函数调用", false, NodeInvokeComponent.class),
 
-	END("end", "结束处理", false, NodeEndComponent.class),
+//	END("end", "结束处理", false, NodeEndComponent.class),
 
 //	FOR("for", "循环次数", false, NodeForComponent.class),
 

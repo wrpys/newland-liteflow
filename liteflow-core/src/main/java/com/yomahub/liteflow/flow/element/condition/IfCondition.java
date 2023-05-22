@@ -1,20 +1,17 @@
 package com.yomahub.liteflow.flow.element.condition;
 
-import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.yomahub.liteflow.common.ChainConstant;
 import com.yomahub.liteflow.enums.CmpStepTypeEnum;
 import com.yomahub.liteflow.enums.ConditionTypeEnum;
-import com.yomahub.liteflow.enums.NodeTypeEnum;
-import com.yomahub.liteflow.exception.IfTypeErrorException;
 import com.yomahub.liteflow.exception.NoIfTrueNodeException;
 import com.yomahub.liteflow.flow.element.Executable;
-import com.yomahub.liteflow.flow.element.Node;
 import com.yomahub.liteflow.flow.entity.CmpStep;
+import com.yomahub.liteflow.slot.ContractContext;
 import com.yomahub.liteflow.slot.DataBus;
 import com.yomahub.liteflow.slot.Slot;
-import com.yomahub.liteflow.util.LiteFlowProxyUtil;
+import com.yomahub.liteflow.util.SpringExpressionUtil;
 
 /**
  * 条件Condition
@@ -24,66 +21,51 @@ import com.yomahub.liteflow.util.LiteFlowProxyUtil;
  */
 public class IfCondition extends Condition {
 
+    private String expr;
+
     private Executable trueCaseExecutableItem;
 
     private Executable falseCaseExecutableItem;
 
     @Override
     public void execute(Integer slotIndex) throws Exception {
-//        if (ListUtil.toList(NodeTypeEnum.IF, NodeTypeEnum.IF_SCRIPT).contains(getIfNode().getType())){
-        if (ListUtil.toList(NodeTypeEnum.IF).contains(getIfNode().getType())){
-            //先执行IF节点
-            this.getIfNode().setCurrChainId(this.getCurrChainId());
-            this.getIfNode().execute(slotIndex);
+        Slot slot = DataBus.getSlot(slotIndex);
 
-            Slot slot = DataBus.getSlot(slotIndex);
-            //这里可能会有spring代理过的bean，所以拿到user原始的class
-            Class<?> originalClass = LiteFlowProxyUtil.getUserClass(this.getIfNode().getInstance().getClass());
-            //拿到If执行过的结果
-            boolean ifResult = slot.getIfResult(originalClass.getName());
+        //在元数据里加入step信息
+        CmpStep cmpStep = new CmpStep(this.getId(), null, this.getRunId(), CmpStepTypeEnum.SINGLE);
+        slot.addStep(cmpStep);
 
-            if (ifResult) {
-                //trueCaseExecutableItem这个不能为空，否则执行什么呢
-                if (ObjectUtil.isNull(trueCaseExecutableItem)) {
-                    String errorInfo = StrUtil.format("[{}]:no if-true node found for the component[{}]", slot.getRequestId(), this.getIfNode().getInstance().getDisplayName());
-                    throw new NoIfTrueNodeException(errorInfo);
-                }
+        //判断条件
+        ContractContext context = slot.getContextBean(ContractContext.class);
+        Boolean ifResult = SpringExpressionUtil.parseExpression(expr, context);
 
-                //trueCaseExecutableItem 不能为前置或者后置组件
-//                if (trueCaseExecutableItem instanceof PreCondition || trueCaseExecutableItem instanceof FinallyCondition) {
-//                    String errorInfo = StrUtil.format("[{}]:if component[{}] error, if true node cannot be pre or finally", slot.getRequestId(), this.getIfNode().getInstance().getDisplayName());
-//                    throw new IfTargetCannotBePreOrFinallyException(errorInfo);
-//                }
+        cmpStep.setNodeId(cmpStep.getNodeId() + "==" + ifResult);
 
-                //执行trueCaseExecutableItem
-                trueCaseExecutableItem.setCurrChainName(this.getCurrChainName());
-                trueCaseExecutableItem.execute(slotIndex);
-            } else {
-                //falseCaseExecutableItem可以为null，但是不为null时就执行否的情况
-                if (ObjectUtil.isNotNull(falseCaseExecutableItem)) {
-                    //falseCaseExecutableItem 不能为前置或者后置组件
-//                    if (falseCaseExecutableItem instanceof PreCondition || falseCaseExecutableItem instanceof FinallyCondition) {
-//                        String errorInfo = StrUtil.format("[{}]:if component[{}] error, if true node cannot be pre or finally", slot.getRequestId(), this.getIfNode().getInstance().getDisplayName());
-//                        throw new IfTargetCannotBePreOrFinallyException(errorInfo);
-//                    }
-
-                    //执行falseCaseExecutableItem
-                    falseCaseExecutableItem.setCurrChainId(this.getCurrChainId());
-
-                    //添加 ELSE 步骤信息
-                    if (falseCaseExecutableItem instanceof IfCondition) {
-
-                    } else {
-                        //在元数据里加入step信息
-                        CmpStep cmpStep = new CmpStep(ChainConstant.ELSE, ChainConstant.ELSE, ChainConstant.ELSE, CmpStepTypeEnum.SINGLE);
-                        slot.addStep(cmpStep);
-                    }
-
-                    falseCaseExecutableItem.execute(slotIndex);
-                }
+        if (ifResult) {
+            //trueCaseExecutableItem这个不能为空，否则执行什么呢
+            if (ObjectUtil.isNull(trueCaseExecutableItem)) {
+                String errorInfo = StrUtil.format("[{}]:no if-true node found for the component[{}]", slot.getRequestId(), trueCaseExecutableItem.getExecuteId());
+                throw new NoIfTrueNodeException(errorInfo);
             }
+
+            //执行trueCaseExecutableItem
+            trueCaseExecutableItem.setCurrChainName(this.getCurrChainName());
+            trueCaseExecutableItem.execute(slotIndex);
         } else {
-            throw new IfTypeErrorException("if instance must be NodeIfComponent");
+            //falseCaseExecutableItem可以为null，但是不为null时就执行否的情况
+            if (ObjectUtil.isNotNull(falseCaseExecutableItem)) {
+                //执行falseCaseExecutableItem
+                falseCaseExecutableItem.setCurrChainId(this.getCurrChainId());
+
+                //添加 ELSE 步骤信息
+                if (!(falseCaseExecutableItem instanceof IfCondition)) {
+                    //在元数据里加入step信息
+                    cmpStep = new CmpStep(ChainConstant.ELSE, ChainConstant.ELSE, ChainConstant.ELSE, CmpStepTypeEnum.SINGLE);
+                    slot.addStep(cmpStep);
+                }
+
+                falseCaseExecutableItem.execute(slotIndex);
+            }
         }
     }
 
@@ -108,7 +90,12 @@ public class IfCondition extends Condition {
         this.falseCaseExecutableItem = falseCaseExecutableItem;
     }
 
-    public Node getIfNode() {
-        return (Node) this.getExecutableList().get(0);
+    public String getExpr() {
+        return expr;
     }
+
+    public void setExpr(String expr) {
+        this.expr = expr;
+    }
+
 }

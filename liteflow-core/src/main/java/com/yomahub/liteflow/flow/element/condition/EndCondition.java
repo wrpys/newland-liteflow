@@ -1,15 +1,18 @@
 package com.yomahub.liteflow.flow.element.condition;
 
-import cn.hutool.core.collection.ListUtil;
+import cn.hutool.http.HttpUtil;
 import com.yomahub.liteflow.enums.CmpStepTypeEnum;
 import com.yomahub.liteflow.enums.ConditionTypeEnum;
-import com.yomahub.liteflow.enums.NodeTypeEnum;
-import com.yomahub.liteflow.exception.IfTypeErrorException;
-import com.yomahub.liteflow.flow.element.Node;
 import com.yomahub.liteflow.flow.entity.CmpStep;
+import com.yomahub.liteflow.model.base.Event;
+import com.yomahub.liteflow.slot.ContractContext;
 import com.yomahub.liteflow.slot.DataBus;
 import com.yomahub.liteflow.slot.Slot;
-import com.yomahub.liteflow.util.LiteFlowProxyUtil;
+import com.yomahub.liteflow.util.JsonUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 /**
  * 结束处理Condition
@@ -19,27 +22,28 @@ import com.yomahub.liteflow.util.LiteFlowProxyUtil;
  */
 public class EndCondition extends Condition {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(EndCondition.class);
+
     @Override
     public void execute(Integer slotIndex) throws Exception {
         //在元数据里加入step信息
         Slot slot = DataBus.getSlot(slotIndex);
-        CmpStep cmpStep = new CmpStep(this.getId(), this.getId(), this.getRunId(), CmpStepTypeEnum.SINGLE);
+        CmpStep cmpStep = new CmpStep(this.getId(), null, this.getRunId(), CmpStepTypeEnum.SINGLE);
         slot.addStep(cmpStep);
 
-        if (ListUtil.toList(NodeTypeEnum.END).contains(getEndNode().getType())) {
-            //先执行END节点
-            this.getEndNode().setCurrChainId(this.getCurrChainId());
-            this.getEndNode().execute(slotIndex);
+        ContractContext context = slot.getContextBean(ContractContext.class);
 
-            //这里可能会有spring代理过的bean，所以拿到user原始的class
-            Class<?> originalClass = LiteFlowProxyUtil.getUserClass(this.getEndNode().getInstance().getClass());
-            //拿到END执行过的结果
-            boolean endResult = slot.getEndResult(originalClass.getName());
-            // TODO
+        // TODO 调用结束回调接口
+        StringBuilder url = new StringBuilder("http://localhost:8080/custom/end");
+        LOGGER.info("url:{}", url);
+        String body = HttpUtil.post(url.toString(), JsonUtil.toJsonString(context.getOutput()));
+        Event event = JsonUtil.parseObject(body, Event.class);
+        if (Objects.equals(event.getCode(), "1")) {
 
         } else {
-            throw new IfTypeErrorException("if instance must be NodeEndComponent");
+
         }
+
     }
 
     @Override
@@ -47,7 +51,4 @@ public class EndCondition extends Condition {
         return ConditionTypeEnum.TYPE_END;
     }
 
-    public Node getEndNode() {
-        return (Node) this.getExecutableList().get(0);
-    }
 }

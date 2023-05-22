@@ -33,9 +33,9 @@ public class LiteFlowNodeBuilder {
 //        return new LiteFlowNodeBuilder(NodeTypeEnum.SWITCH);
 //    }
 
-    public static LiteFlowNodeBuilder createIfNode() {
-        return new LiteFlowNodeBuilder(NodeTypeEnum.IF);
-    }
+//    public static LiteFlowNodeBuilder createIfNode() {
+//        return new LiteFlowNodeBuilder(NodeTypeEnum.IF);
+//    }
 
 //    public static LiteFlowNodeBuilder createForNode() {
 //        return new LiteFlowNodeBuilder(NodeTypeEnum.FOR);

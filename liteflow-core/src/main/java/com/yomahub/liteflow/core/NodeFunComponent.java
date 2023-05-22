@@ -34,7 +34,11 @@ public abstract class NodeFunComponent extends NodeComponent {
             throw new RuntimeException("请求异常！" + httpResponse.body());
         }
 
-        Event event = JsonUtil.parseObject(httpResponse.body(), Event.class);
+        // TODO 不关心类型。后面为异步调用。只要调用成功就行。
+        Event event = (Event) JsonUtil.parseObject(httpResponse.body(), context.getClazz());
+
+        context.setOutput(event);
+
         Class<?> originalClass = LiteFlowProxyUtil.getUserClass(this.getClass());
         if (Objects.equals(event.getCode(), "1")) {
             this.getSlot().setInvokeResult(originalClass.getName(), true);
