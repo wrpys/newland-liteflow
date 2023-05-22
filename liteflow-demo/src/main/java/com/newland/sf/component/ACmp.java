@@ -1,6 +1,8 @@
 package com.newland.sf.component;
 
+import com.newland.sf.model.Cdr;
 import com.yomahub.liteflow.core.NodeComponent;
+import com.yomahub.liteflow.slot.ContractContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +18,14 @@ public class ACmp extends NodeComponent {
     public void process() {
         //do your business
         LOGGER.info("执行ACmp");
+
+        ContractContext<Cdr> context = this.getContextBean(ContractContext.class);
+
+        Cdr cdr = context.getInput();
+        String test = cdr.getData() == null ? "" : cdr.getData() + ",";
+        cdr.setData(test + "a");
+
+        context.setOutput(cdr);
 
     }
 

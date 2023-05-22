@@ -74,7 +74,7 @@ public class CustomController {
             public void run() {
                 // TODO 契约下载
                 // 执行契约
-                ContractContext<Cdr> contractContext = new ContractContext<>();
+                ContractContext<Cdr> contractContext = new ContractContext<>(Cdr.class);
                 contractContext.setInput(cdr);
 
 //                DefaultContext defaultContext = new DefaultContext();

@@ -89,7 +89,7 @@ public class SpringCloudEventsApplication {
     @GetMapping("test2")
     public String execute2(@RequestParam("contractId") String contractId, @RequestParam("chainId") String chainId) {
 
-        ContractContext<Cdr> contractContext = new ContractContext<>();
+        ContractContext<Cdr> contractContext = new ContractContext<>(Cdr.class);
         Cdr cdr = new Cdr();
         cdr.setContractId(contractId);
         contractContext.setInput(cdr);
@@ -130,24 +130,12 @@ public class SpringCloudEventsApplication {
     }
 
     private void endCondition(EndCondition endCondition) {
-        Node node = endCondition.getEndNode();
-        System.out.println(node.getType().getCode() + "," + node.getId() + "," + node.getRunId());
+        System.out.println(endCondition.getConditionType().getType() + "," + endCondition.getId() + "," + endCondition.getRunId());
     }
 
     private void ifCondition(IfCondition ifCondition) {
 
-//        Node node = ifCondition.getIfNode();
-//        System.out.println(node.getType().getCode() + "," + node.getId() + "," + node.getRunId());
-
-        List<Executable> executables = ifCondition.getExecutableList();
-        for (Executable executable : executables) {
-            if (executable instanceof Condition) {
-                condition((Condition) executable);
-            } else if (executable instanceof Node) {
-                Node n = (Node) executable;
-                System.out.println(n.getType().getCode() + "," + n.getId() + "," + n.getRunId());
-            }
-        }
+        System.out.println(ifCondition.getConditionType().getType() + "," + ifCondition.getId() + "," + ifCondition.getRunId());
 
         Executable executable = ifCondition.getTrueCaseExecutableItem();
         if (executable instanceof Condition) {
@@ -202,7 +190,7 @@ public class SpringCloudEventsApplication {
     @GetMapping("test3")
     public Boolean execute3(@RequestParam("contractId") String contractId, @RequestParam("nodeId") String nodeId) throws Exception {
 
-        ContractContext<Cdr> contractContext = new ContractContext<>();
+        ContractContext<Cdr> contractContext = new ContractContext<>(Cdr.class);
         Cdr cdr = new Cdr();
         cdr.setContractId(contractId);
         contractContext.setInput(cdr);
@@ -284,7 +272,7 @@ public class SpringCloudEventsApplication {
                     Event input = (Event) args[0];
                     Object output = joinPoint.proceed();
 
-                    ContractContext context = new ContractContext<>();
+                    ContractContext context = new ContractContext<>(Cdr.class);
                     context.setInput(input);
                     context.setOutput((Event) output);
                     LiteflowResponse response = flowExecutor.execute2Resp(input.getFunName(), null, context);

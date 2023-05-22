@@ -6,7 +6,6 @@
         <node id="b" class="com.newland.sf.component.BCmp" ></node>
         <node id="c" class="com.newland.sf.component.CCmp" ></node>
         <node id="d" class="com.newland.sf.component.DCmp" ></node>
-        <node id="x" class="com.newland.sf.component.XCmp" ></node>
     </nodes>
 
     <funs>
@@ -20,7 +19,7 @@
         THEN(chachong, yaosuqiuqu, pijia, koukuan);
     </chain>
     <chain name="chain2">
-        THEN(IF('input.contractId == "test"', b).ELIF('input.contractId == "flow.el-1.0.0.xml"', a).ELSE(c), chachong);
+        THEN(IF('input.contractId == "test"', b).ELIF('input.contractId == "flow.el-1.0.0.xml"', a).ELSE(c), chachong, END());
     </chain>
 
 </flow>
