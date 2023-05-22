@@ -98,6 +98,11 @@ public class Chain implements Executable {
             throw new FlowSystemException("no conditionList in this chain[" + chainId + "]");
         }
         Slot slot = DataBus.getSlot(slotIndex);
+
+        //在元数据里加入step信息
+        CmpStep cmpStep = new CmpStep(chainId, chainId, chainId, CmpStepTypeEnum.SINGLE);
+        slot.addStep(cmpStep);
+
         try {
             slot.setContractId(contractId);
             //设置主ChainName
@@ -105,11 +110,6 @@ public class Chain implements Executable {
             //执行主体Condition
             for (Condition condition : conditionList) {
                 condition.setCurrChainId(chainId);
-
-                //在元数据里加入step信息
-                CmpStep cmpStep = new CmpStep(chainId, chainId, CmpStepTypeEnum.SINGLE);
-                slot.addStep(cmpStep);
-
                 condition.execute(slotIndex);
             }
         }catch (ChainEndException e){

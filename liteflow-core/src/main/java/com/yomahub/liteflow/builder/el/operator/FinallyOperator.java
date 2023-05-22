@@ -1,29 +1,38 @@
-package com.yomahub.liteflow.builder.el.operator;
-
-import com.ql.util.express.exception.QLException;
-import com.yomahub.liteflow.builder.el.operator.base.BaseOperator;
-import com.yomahub.liteflow.builder.el.operator.base.OperatorHelper;
-import com.yomahub.liteflow.common.ChainConstant;
-import com.yomahub.liteflow.flow.element.Executable;
-import com.yomahub.liteflow.flow.element.condition.FinallyCondition;
-
-/**
- * EL规则中的THEN的操作符
- *
- * @author Bryan.Zhang
- * @since 2.8.0
- */
-public class FinallyOperator extends BaseOperator<FinallyCondition> {
-
-	@Override
-	public FinallyCondition build(Object[] objects) throws Exception {
-		OperatorHelper.checkObjectSizeGtZero(objects);
-
-		FinallyCondition finallyCondition = new FinallyCondition();
-		finallyCondition.setId(ChainConstant.FINALLY);
-		for (Object obj : objects) {
-			finallyCondition.addExecutable(OperatorHelper.convert(obj, Executable.class));
-		}
-		return finallyCondition;
-	}
-}
+//package com.yomahub.liteflow.builder.el.operator;
+//
+//import com.yomahub.liteflow.builder.el.operator.base.BaseOperator;
+//import com.yomahub.liteflow.builder.el.operator.base.OperatorHelper;
+//import com.yomahub.liteflow.common.ChainConstant;
+//import com.yomahub.liteflow.flow.FlowBus;
+//import com.yomahub.liteflow.flow.element.Executable;
+//import com.yomahub.liteflow.flow.element.Node;
+//import com.yomahub.liteflow.flow.element.condition.FinallyCondition;
+//
+///**
+// * EL规则中的THEN的操作符
+// *
+// * @author Bryan.Zhang
+// * @since 2.8.0
+// */
+//public class FinallyOperator extends BaseOperator<FinallyCondition> {
+//
+//	@Override
+//	public FinallyCondition build(Object[] objects) throws Exception {
+//		OperatorHelper.checkObjectSizeGtZero(objects);
+//
+//		FinallyCondition finallyCondition = new FinallyCondition();
+//		finallyCondition.setRunId(FlowBus.getRunId(this.getContractId()));
+//		finallyCondition.setId(ChainConstant.FINALLY);
+//		for (Object obj : objects) {
+//			if (obj instanceof Node) {
+//				Node node = (Node) obj;
+//				Node n = node.copy();
+//				n.setRunId(FlowBus.getRunId(this.getContractId()));
+//				finallyCondition.addExecutable(n);
+//			} else {
+//				finallyCondition.addExecutable(OperatorHelper.convert(obj, Executable.class));
+//			}
+//		}
+//		return finallyCondition;
+//	}
+//}

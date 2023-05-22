@@ -3,10 +3,12 @@ package com.yomahub.liteflow.flow.element.condition;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.yomahub.liteflow.common.ChainConstant;
 import com.yomahub.liteflow.enums.CmpStepTypeEnum;
 import com.yomahub.liteflow.enums.ConditionTypeEnum;
 import com.yomahub.liteflow.enums.NodeTypeEnum;
-import com.yomahub.liteflow.exception.*;
+import com.yomahub.liteflow.exception.IfTypeErrorException;
+import com.yomahub.liteflow.exception.NoIfTrueNodeException;
 import com.yomahub.liteflow.flow.element.Executable;
 import com.yomahub.liteflow.flow.element.Node;
 import com.yomahub.liteflow.flow.entity.CmpStep;
@@ -48,10 +50,10 @@ public class IfCondition extends Condition {
                 }
 
                 //trueCaseExecutableItem 不能为前置或者后置组件
-                if (trueCaseExecutableItem instanceof PreCondition || trueCaseExecutableItem instanceof FinallyCondition) {
-                    String errorInfo = StrUtil.format("[{}]:if component[{}] error, if true node cannot be pre or finally", slot.getRequestId(), this.getIfNode().getInstance().getDisplayName());
-                    throw new IfTargetCannotBePreOrFinallyException(errorInfo);
-                }
+//                if (trueCaseExecutableItem instanceof PreCondition || trueCaseExecutableItem instanceof FinallyCondition) {
+//                    String errorInfo = StrUtil.format("[{}]:if component[{}] error, if true node cannot be pre or finally", slot.getRequestId(), this.getIfNode().getInstance().getDisplayName());
+//                    throw new IfTargetCannotBePreOrFinallyException(errorInfo);
+//                }
 
                 //执行trueCaseExecutableItem
                 trueCaseExecutableItem.setCurrChainName(this.getCurrChainName());
@@ -60,10 +62,10 @@ public class IfCondition extends Condition {
                 //falseCaseExecutableItem可以为null，但是不为null时就执行否的情况
                 if (ObjectUtil.isNotNull(falseCaseExecutableItem)) {
                     //falseCaseExecutableItem 不能为前置或者后置组件
-                    if (falseCaseExecutableItem instanceof PreCondition || falseCaseExecutableItem instanceof FinallyCondition) {
-                        String errorInfo = StrUtil.format("[{}]:if component[{}] error, if true node cannot be pre or finally", slot.getRequestId(), this.getIfNode().getInstance().getDisplayName());
-                        throw new IfTargetCannotBePreOrFinallyException(errorInfo);
-                    }
+//                    if (falseCaseExecutableItem instanceof PreCondition || falseCaseExecutableItem instanceof FinallyCondition) {
+//                        String errorInfo = StrUtil.format("[{}]:if component[{}] error, if true node cannot be pre or finally", slot.getRequestId(), this.getIfNode().getInstance().getDisplayName());
+//                        throw new IfTargetCannotBePreOrFinallyException(errorInfo);
+//                    }
 
                     //执行falseCaseExecutableItem
                     falseCaseExecutableItem.setCurrChainId(this.getCurrChainId());
@@ -73,7 +75,7 @@ public class IfCondition extends Condition {
 
                     } else {
                         //在元数据里加入step信息
-                        CmpStep cmpStep = new CmpStep("ELSE", "ELSE", CmpStepTypeEnum.SINGLE);
+                        CmpStep cmpStep = new CmpStep(ChainConstant.ELSE, ChainConstant.ELSE, ChainConstant.ELSE, CmpStepTypeEnum.SINGLE);
                         slot.addStep(cmpStep);
                     }
 

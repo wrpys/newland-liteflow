@@ -9,8 +9,10 @@ package com.yomahub.liteflow.flow.element.condition;
 
 import com.yomahub.liteflow.enums.CmpStepTypeEnum;
 import com.yomahub.liteflow.enums.ConditionTypeEnum;
+import com.yomahub.liteflow.enums.NodeTypeEnum;
 import com.yomahub.liteflow.exception.ChainEndException;
 import com.yomahub.liteflow.flow.element.Executable;
+import com.yomahub.liteflow.flow.element.Node;
 import com.yomahub.liteflow.flow.entity.CmpStep;
 import com.yomahub.liteflow.slot.DataBus;
 import com.yomahub.liteflow.slot.Slot;
@@ -27,12 +29,12 @@ public class ThenCondition extends Condition {
 	/**
 	 * 前置处理Condition
 	 */
-	private final List<PreCondition> preConditionList = new ArrayList<>();
+//	private final List<PreCondition> preConditionList = new ArrayList<>();
 
 	/**
 	 * 后置处理Condition
 	 */
-	private final List<FinallyCondition> finallyConditionList = new ArrayList<>();
+//	private final List<FinallyCondition> finallyConditionList = new ArrayList<>();
 
 	@Override
 	public ConditionTypeEnum getConditionType() {
@@ -45,15 +47,24 @@ public class ThenCondition extends Condition {
 
 			//在元数据里加入step信息
 			Slot slot = DataBus.getSlot(slotIndex);
-			CmpStep cmpStep = new CmpStep(this.getId(), this.getId(), CmpStepTypeEnum.SINGLE);
+			CmpStep cmpStep = new CmpStep(this.getId(), this.getId(), this.getRunId(), CmpStepTypeEnum.SINGLE);
 			slot.addStep(cmpStep);
 
-			for (PreCondition preCondition : preConditionList){
-				preCondition.setCurrChainId(this.getCurrChainId());
-				preCondition.execute(slotIndex);
-			}
+//			for (PreCondition preCondition : preConditionList){
+//				preCondition.setCurrChainId(this.getCurrChainId());
+//				preCondition.execute(slotIndex);
+//			}
 
 			for (Executable executableItem : this.getExecutableList()) {
+//				if (executableItem instanceof Node) {
+//					Node node = (Node) executableItem;
+//					if (node.getType().getCode().equals(NodeTypeEnum.FUN.getCode())) {
+//						if (node.getId().equals("pijia")) {
+//							executableItem.setCurrChainId(this.getCurrChainId());
+//							node.execute(slotIndex);
+//						}
+//					}
+//				}
 				executableItem.setCurrChainId(this.getCurrChainId());
 				executableItem.execute(slotIndex);
 			}
@@ -72,21 +83,21 @@ public class ThenCondition extends Condition {
 			}
 			throw e;
 		}finally {
-			for (FinallyCondition finallyCondition : finallyConditionList){
-				finallyCondition.setCurrChainId(this.getCurrChainId());
-				finallyCondition.execute(slotIndex);
-			}
+//			for (FinallyCondition finallyCondition : finallyConditionList){
+//				finallyCondition.setCurrChainId(this.getCurrChainId());
+//				finallyCondition.execute(slotIndex);
+//			}
 		}
 	}
 
 	@Override
 	public void addExecutable(Executable executable) {
-		if (executable instanceof PreCondition){
-			preConditionList.add((PreCondition) executable);
-		}else if (executable instanceof FinallyCondition){
-			finallyConditionList.add((FinallyCondition) executable);
-		}else{
+//		if (executable instanceof PreCondition){
+//			preConditionList.add((PreCondition) executable);
+//		}else if (executable instanceof FinallyCondition){
+//			finallyConditionList.add((FinallyCondition) executable);
+//		}else{
 			super.addExecutable(executable);
-		}
+//		}
 	}
 }

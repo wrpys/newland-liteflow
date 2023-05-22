@@ -1,13 +1,24 @@
 package com.newland.sf;
 
+import cn.hutool.core.collection.ListUtil;
 import com.newland.sf.config.EventContractConfig;
 import com.newland.sf.model.Cdr;
 import com.newland.sf.queue.EventQueue;
 import com.newland.sf.utils.NacosParserHelper;
 import com.yomahub.liteflow.core.FlowExecutor;
+import com.yomahub.liteflow.flow.FlowBus;
 import com.yomahub.liteflow.flow.LiteflowResponse;
+import com.yomahub.liteflow.flow.element.Chain;
+import com.yomahub.liteflow.flow.element.Executable;
+import com.yomahub.liteflow.flow.element.Node;
+import com.yomahub.liteflow.flow.element.condition.Condition;
+import com.yomahub.liteflow.flow.element.condition.EndCondition;
+import com.yomahub.liteflow.flow.element.condition.IfCondition;
+import com.yomahub.liteflow.flow.element.condition.ThenCondition;
+import com.yomahub.liteflow.flow.element.condition.WhenCondition;
 import com.yomahub.liteflow.model.base.Event;
 import com.yomahub.liteflow.slot.ContractContext;
+import com.yomahub.liteflow.slot.DataBus;
 import com.yomahub.liteflow.slot.DefaultContext;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -83,7 +95,124 @@ public class SpringCloudEventsApplication {
         contractContext.setInput(cdr);
 
         LiteflowResponse response = flowExecutor.execute2Resp(contractId, chainId, null, contractContext);
-        return response.getMessage();
+
+        Map<String, Map<String, Chain>> chainMap = FlowBus.getChainMap();
+        for (String k : chainMap.keySet()) {
+            System.out.println("===" + k + "===begin");
+            Map<String, Chain> v = chainMap.get(k);
+            for (String k2 : v.keySet()) {
+                Chain v2 = v.get(k2);
+                System.out.println("---" + k2 + "---begin");
+                List<Condition> cs = v2.getConditionList();
+                for (Condition c : cs) {
+                    condition(c);
+                }
+                System.out.println("---" + k2 + "---end");
+            }
+            System.out.println("===" + k + "===end");
+        }
+
+        return response.getExecuteStepStr();
+    }
+
+    private void condition(Condition c) {
+        if (c instanceof EndCondition) {
+            endCondition((EndCondition) c);
+        } else if (c instanceof IfCondition) {
+            ifCondition((IfCondition) c);
+        } else if (c instanceof ThenCondition) {
+            thenCondition((ThenCondition) c);
+        } else if (c instanceof WhenCondition) {
+            whenCondition((WhenCondition) c);
+        } else {
+            throw new RuntimeException("未知类型");
+        }
+    }
+
+    private void endCondition(EndCondition endCondition) {
+        Node node = endCondition.getEndNode();
+        System.out.println(node.getType().getCode() + "," + node.getId() + "," + node.getRunId());
+    }
+
+    private void ifCondition(IfCondition ifCondition) {
+
+//        Node node = ifCondition.getIfNode();
+//        System.out.println(node.getType().getCode() + "," + node.getId() + "," + node.getRunId());
+
+        List<Executable> executables = ifCondition.getExecutableList();
+        for (Executable executable : executables) {
+            if (executable instanceof Condition) {
+                condition((Condition) executable);
+            } else if (executable instanceof Node) {
+                Node n = (Node) executable;
+                System.out.println(n.getType().getCode() + "," + n.getId() + "," + n.getRunId());
+            }
+        }
+
+        Executable executable = ifCondition.getTrueCaseExecutableItem();
+        if (executable instanceof Condition) {
+            condition((Condition) executable);
+        } else if (executable instanceof Node) {
+            Node n = (Node) executable;
+            System.out.println(n.getType().getCode() + "," + n.getId() + "," + n.getRunId());
+        }
+
+        executable = ifCondition.getFalseCaseExecutableItem();
+        if (executable instanceof Condition) {
+            condition((Condition) executable);
+        } else if (executable instanceof Node) {
+            Node n = (Node) executable;
+            System.out.println(n.getType().getCode() + "," + n.getId() + "," + n.getRunId());
+        }
+
+    }
+
+    private void thenCondition(ThenCondition thenCondition) {
+        System.out.println(thenCondition.getConditionType().getType() + "," + thenCondition.getId() + "," + thenCondition.getRunId());
+
+        List<Executable> executables = thenCondition.getExecutableList();
+        if (executables != null) {
+            for (Executable executable : executables) {
+                if (executable instanceof Condition) {
+                    condition((Condition) executable);
+                } else if (executable instanceof Node) {
+                    Node n = (Node) executable;
+                    System.out.println(n.getType().getCode() + "," + n.getId() + "," + n.getRunId());
+                }
+            }
+        }
+    }
+
+    private void whenCondition(WhenCondition whenCondition) {
+        System.out.println(whenCondition.getConditionType().getType() + "," + whenCondition.getId() + "," + whenCondition.getRunId());
+
+        List<Executable> executables = whenCondition.getExecutableList();
+        if (executables != null) {
+            for (Executable executable : executables) {
+                if (executable instanceof Condition) {
+                    condition((Condition) executable);
+                } else if (executable instanceof Node) {
+                    Node n = (Node) executable;
+                    System.out.println(n.getType().getCode() + "," + n.getId() + "," + n.getRunId());
+                }
+            }
+        }
+    }
+
+    @GetMapping("test3")
+    public Boolean execute3(@RequestParam("contractId") String contractId, @RequestParam("nodeId") String nodeId) throws Exception {
+
+        ContractContext<Cdr> contractContext = new ContractContext<>();
+        Cdr cdr = new Cdr();
+        cdr.setContractId(contractId);
+        contractContext.setInput(cdr);
+
+        Integer slotIndex = DataBus.offerSlotByBean(ListUtil.toList(contractContext));
+
+        flowExecutor.invoke(contractId, nodeId, slotIndex);
+
+        LiteflowResponse response = LiteflowResponse.newMainResponse(DataBus.getSlot(slotIndex));
+        return response.isSuccess();
     }
 
     @GetMapping("custom")

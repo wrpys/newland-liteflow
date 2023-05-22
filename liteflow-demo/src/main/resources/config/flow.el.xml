@@ -16,16 +16,11 @@
         <fun id="koukuan" name="koukuan" version="1.0.0" />
     </funs>
 
-    <chain name="chain1">
-        THEN(chachong, yaosuqiuqu, pijia, koukuan, chain2);
+    <chain name="main">
+        THEN(chachong, yaosuqiuqu, pijia, koukuan);
     </chain>
     <chain name="chain2">
         THEN(IF('input.contractId == "test"', b).ELIF('input.contractId == "flow.el-1.0.0.xml"', a).ELSE(c), chachong);
     </chain>
-    <chain name="chain3">
-        THEN(c, a, b);
-    </chain>
-    <chain name="chain5">
-        THEN(chain1, chain2);
-    </chain>
+
 </flow>

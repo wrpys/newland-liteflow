@@ -18,6 +18,7 @@ import com.yomahub.liteflow.flow.executor.DefaultNodeExecutor;
 import com.yomahub.liteflow.enums.NodeTypeEnum;
 import com.yomahub.liteflow.spi.holder.CmpAroundAspectHolder;
 import com.yomahub.liteflow.util.JsonUtil;
+import com.yomahub.liteflow.util.LiteFlowProxyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.yomahub.liteflow.flow.entity.CmpStep;
@@ -45,6 +46,8 @@ public abstract class NodeComponent{
 	private String nodeId;
 
 	private String name;
+
+	private String version;
 
 	private NodeTypeEnum type;
 
@@ -84,7 +87,7 @@ public abstract class NodeComponent{
 		Slot slot = this.getSlot();
 
 		//在元数据里加入step信息
-		CmpStep cmpStep = new CmpStep(nodeId, name, CmpStepTypeEnum.SINGLE);
+		CmpStep cmpStep = new CmpStep(nodeId, name, getRefNode().getRunId(), CmpStepTypeEnum.SINGLE);
 		cmpStep.setTag(this.getTag());
 		slot.addStep(cmpStep);
 
@@ -104,6 +107,17 @@ public abstract class NodeComponent{
 
 			//步骤状态设为true
 			cmpStep.setSuccess(true);
+
+			if (self instanceof NodeIfComponent) {
+				Class<?> originalClass = LiteFlowProxyUtil.getUserClass(self.getRefNode().getInstance().getClass());
+				boolean ifResult = slot.getIfResult(originalClass.getName());
+				cmpStep.setNodeId(cmpStep.getNodeId() + "==" + ifResult);
+			}
+
+//			if (self instanceof NodeFunComponent) {
+//				self.setIsEnd(true);
+//			}
+
 		} catch (Exception e){
 			//步骤状态设为false，并加入异常
 			cmpStep.setSuccess(false);
@@ -225,6 +239,14 @@ public abstract class NodeComponent{
 
 	public void setNodeId(String nodeId) {
 		this.nodeId = nodeId;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
 	}
 
 	public NodeComponent getSelf() {

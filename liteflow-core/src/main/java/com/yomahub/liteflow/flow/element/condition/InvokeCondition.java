@@ -23,7 +23,7 @@ public class InvokeCondition extends Condition {
     public void execute(Integer slotIndex) throws Exception {
         //在元数据里加入step信息
         Slot slot = DataBus.getSlot(slotIndex);
-        CmpStep cmpStep = new CmpStep(this.getId(), this.getId(), CmpStepTypeEnum.SINGLE);
+        CmpStep cmpStep = new CmpStep(this.getId(), this.getId(), this.getRunId(), CmpStepTypeEnum.SINGLE);
         slot.addStep(cmpStep);
 
         if (ListUtil.toList(NodeTypeEnum.INVOKE).contains(getInvokeNode().getType())) {

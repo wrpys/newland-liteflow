@@ -10,9 +10,20 @@ package com.yomahub.liteflow.core;
 
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.*;
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.BooleanUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.ReUtil;
+import cn.hutool.core.util.StrUtil;
 import com.yomahub.liteflow.enums.InnerChainTypeEnum;
-import com.yomahub.liteflow.exception.*;
+import com.yomahub.liteflow.exception.ChainDuplicateException;
+import com.yomahub.liteflow.exception.ChainEndException;
+import com.yomahub.liteflow.exception.ChainNotFoundException;
+import com.yomahub.liteflow.exception.ConfigErrorException;
+import com.yomahub.liteflow.exception.CyclicDependencyException;
+import com.yomahub.liteflow.exception.FlowExecutorNotInitException;
+import com.yomahub.liteflow.exception.MultipleParsersException;
+import com.yomahub.liteflow.exception.NoAvailableSlotException;
 import com.yomahub.liteflow.flow.FlowBus;
 import com.yomahub.liteflow.flow.LiteflowResponse;
 import com.yomahub.liteflow.flow.element.Chain;
@@ -26,12 +37,17 @@ import com.yomahub.liteflow.property.LiteflowConfigGetter;
 import com.yomahub.liteflow.slot.DataBus;
 import com.yomahub.liteflow.slot.DefaultContext;
 import com.yomahub.liteflow.slot.Slot;
-import com.yomahub.liteflow.spi.holder.ContextCmpInitHolder;
 import com.yomahub.liteflow.thread.ExecutorHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.concurrent.Future;
 
 /**
@@ -78,7 +94,7 @@ public class FlowExecutor {
         //在相应的环境下进行节点的初始化工作
         //在spring体系下会获得spring扫描后的节点，接入元数据
         //在非spring体系下是一个空实现，等于不做此步骤
-        ContextCmpInitHolder.loadContextCmpInit().initCmp();
+//        ContextCmpInitHolder.loadContextCmpInit().initCmp();
 
         //进行id生成器的初始化
         IdGeneratorHolder.init();

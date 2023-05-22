@@ -56,7 +56,7 @@ public class WhenCondition extends Condition {
 	public void execute(Integer slotIndex) throws Exception {
 		//在元数据里加入step信息
 		Slot slot = DataBus.getSlot(slotIndex);
-		CmpStep cmpStep = new CmpStep(this.getId(), this.getId(), CmpStepTypeEnum.SINGLE);
+		CmpStep cmpStep = new CmpStep(this.getId(), this.getId(), this.getRunId(), CmpStepTypeEnum.SINGLE);
 		slot.addStep(cmpStep);
 
 		executeAsyncCondition(slotIndex);
@@ -90,9 +90,9 @@ public class WhenCondition extends Condition {
 		//3.根据condition.getNodeList()的集合进行流处理，用map进行把executable对象转换成List<CompletableFuture<WhenFutureObj>>
 		//4.在转的过程中，套入CompletableFutureTimeout方法进行超时判断，如果超时则用WhenFutureObj.timeOut返回超时的对象
 		//5.第2个参数是主要的本体CompletableFuture，传入了ParallelSupplier和线程池对象
-		List<CompletableFuture<WhenFutureObj>> completableFutureList = this.getExecutableList().stream().filter(executable ->
-				!(executable instanceof PreCondition) && !(executable instanceof FinallyCondition)
-		).filter(executable -> {
+//		List<CompletableFuture<WhenFutureObj>> completableFutureList = this.getExecutableList().stream().filter(executable ->
+//				!(executable instanceof PreCondition) && !(executable instanceof FinallyCondition)
+		List<CompletableFuture<WhenFutureObj>> completableFutureList = this.getExecutableList().stream().filter(executable -> {
 			try {
 				return executable.isAccess(slotIndex);
 			}catch (Exception e){

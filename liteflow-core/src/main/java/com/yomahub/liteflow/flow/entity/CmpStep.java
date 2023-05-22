@@ -22,6 +22,8 @@ public class CmpStep {
 
     private String nodeName;
 
+    private String runId;
+
     private String tag;
 
     private CmpStepTypeEnum stepType;
@@ -36,9 +38,10 @@ public class CmpStep {
     //但是success为false，不一定有exception，因为有可能没执行到，或者没执行结束(any)
     private Exception exception;
 
-    public CmpStep(String nodeId, String nodeName, CmpStepTypeEnum stepType) {
+    public CmpStep(String nodeId, String nodeName, String runId, CmpStepTypeEnum stepType) {
         this.nodeId = nodeId;
         this.nodeName = nodeName;
+        this.runId = runId;
         this.stepType = stepType;
     }
 
@@ -92,11 +95,11 @@ public class CmpStep {
 
     public String buildString() {
         if (stepType.equals(CmpStepTypeEnum.SINGLE)) {
-        	if (StrUtil.isBlank(nodeName)){
-				return StrUtil.format("{}", nodeId);
-			}else{
-				return StrUtil.format("{}[{}]", nodeId, nodeName);
-			}
+//        	if (StrUtil.isBlank(nodeName)){
+//				return StrUtil.format("{}", nodeId);
+//			}else{
+				return StrUtil.format("{}[{}]", nodeId, runId);
+//			}
         } else {
         	//目前没有其他的类型
             return null;
@@ -105,19 +108,19 @@ public class CmpStep {
 
     public String buildStringWithTime() {
         if (stepType.equals(CmpStepTypeEnum.SINGLE)) {
-            if (StrUtil.isBlank(nodeName)){
+//            if (StrUtil.isBlank(nodeName)){
+//                if (timeSpent != null){
+//                    return StrUtil.format("{}<{}>", nodeId, timeSpent);
+//                }else{
+//                    return StrUtil.format("{}", nodeId);
+//                }
+//            }else{
                 if (timeSpent != null){
-                    return StrUtil.format("{}<{}>", nodeId, timeSpent);
+                    return StrUtil.format("{}[{}]<{}>", nodeId, runId, timeSpent);
                 }else{
-                    return StrUtil.format("{}", nodeId);
+                    return StrUtil.format("{}[{}]", nodeId, runId);
                 }
-            }else{
-                if (timeSpent != null){
-                    return StrUtil.format("{}[{}]<{}>", nodeId, nodeName, timeSpent);
-                }else{
-                    return StrUtil.format("{}[{}]", nodeId, nodeName);
-                }
-            }
+//            }
         } else {
             //目前没有其他的类型
             return null;

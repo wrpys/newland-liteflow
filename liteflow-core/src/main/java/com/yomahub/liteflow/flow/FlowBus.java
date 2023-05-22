@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -42,6 +43,8 @@ public class FlowBus {
     private static final Map<String, Map<String, Chain>> chainMap = new CopyOnWriteHashMap<>();
 
     private static final Map<String, Map<String, Node>> nodeMap = new CopyOnWriteHashMap<>();
+
+    private static final Map<String, AtomicInteger> runIdMap = new CopyOnWriteHashMap<>();
 
     private FlowBus() {
     }
@@ -155,7 +158,8 @@ public class FlowBus {
                     return version;
                 }
             };
-
+            instance.setContractId(contractId);
+            instance.setVersion(version);
             cmpInstances.add(instance);
             //进行初始化component
             cmpInstances = cmpInstances.stream()
@@ -330,4 +334,12 @@ public class FlowBus {
             removeChain(contractId, id);
         });
     }
+
+    public static String getRunId(String contractId) {
+        if (!runIdMap.containsKey(contractId)) {
+            runIdMap.put(contractId, new AtomicInteger(0));
+        }
+        return String.valueOf(runIdMap.get(contractId).incrementAndGet());
+    }
+
 }

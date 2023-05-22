@@ -20,6 +20,8 @@ import java.util.List;
  */
 public abstract class Condition implements Executable{
 
+	private String runId;
+
 	private String id;
 
 	/**
@@ -57,6 +59,14 @@ public abstract class Condition implements Executable{
 	}
 
 	public abstract ConditionTypeEnum getConditionType();
+
+	public String getRunId() {
+		return runId;
+	}
+
+	public void setRunId(String runId) {
+		this.runId = runId;
+	}
 
 	public String getId() {
 		return id;

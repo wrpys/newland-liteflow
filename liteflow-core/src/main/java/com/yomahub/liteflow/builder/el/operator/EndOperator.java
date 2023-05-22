@@ -6,6 +6,7 @@ import com.yomahub.liteflow.builder.el.operator.base.BaseOperator;
 import com.yomahub.liteflow.common.ChainConstant;
 import com.yomahub.liteflow.core.NodeEndComponent;
 import com.yomahub.liteflow.enums.NodeTypeEnum;
+import com.yomahub.liteflow.flow.FlowBus;
 import com.yomahub.liteflow.flow.element.Node;
 import com.yomahub.liteflow.flow.element.condition.EndCondition;
 
@@ -32,11 +33,13 @@ public class EndOperator extends BaseOperator<EndCondition> {
             }
         };
         nodeEndComponent.setSelf(nodeEndComponent);
-        nodeEndComponent.setNodeId(StrUtil.format("END_{}", 1));
+        nodeEndComponent.setNodeId("END");
         node.setInstance(nodeEndComponent);
         node.setType(NodeTypeEnum.END);
+        node.setRunId(FlowBus.getRunId(this.getContractId()));
 
         EndCondition endCondition = new EndCondition();
+//        endCondition.setRunId(FlowBus.getRunId(this.getContractId()));
         endCondition.setId(ChainConstant.END);
         endCondition.setExecutableList(ListUtil.toList(node));
         return endCondition;

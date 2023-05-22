@@ -6,7 +6,7 @@ package com.yomahub.liteflow.enums;
 public enum ConditionTypeEnum {
     TYPE_THEN("then","then"),
     TYPE_WHEN("when","when"),
-    TYPE_SWITCH("switch", "switch"),
+//    TYPE_SWITCH("switch", "switch"),
 
     TYPE_IF("if", "if"),
 
@@ -14,8 +14,8 @@ public enum ConditionTypeEnum {
 
     TYPE_END("end", "end"),
 
-    TYPE_PRE("pre","pre"),
-    TYPE_FINALLY("finally","finally"),
+//    TYPE_PRE("pre","pre"),
+//    TYPE_FINALLY("finally","finally"),
 
 //    TYPE_FOR("for", "for"),
 

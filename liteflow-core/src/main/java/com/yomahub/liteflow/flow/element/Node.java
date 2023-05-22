@@ -36,6 +36,8 @@ public class Node implements Executable,Cloneable{
 
 	private static final Logger LOG = LoggerFactory.getLogger(Node.class);
 
+	private String runId;
+
 	private String contractId;
 
 	private String id;
@@ -73,6 +75,15 @@ public class Node implements Executable,Cloneable{
 		this.instance = instance;
 		this.type = instance.getType();
 		this.clazz = instance.getClass().getName();
+		this.version = instance.getVersion();
+	}
+
+	public String getRunId() {
+		return runId;
+	}
+
+	public void setRunId(String runId) {
+		this.runId = runId;
 	}
 
 	public String getContractId() {

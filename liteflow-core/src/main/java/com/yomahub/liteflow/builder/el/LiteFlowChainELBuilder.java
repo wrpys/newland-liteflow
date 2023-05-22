@@ -8,7 +8,18 @@ import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 import com.ql.util.express.InstructionSet;
 import com.ql.util.express.exception.QLException;
-import com.yomahub.liteflow.builder.el.operator.*;
+import com.yomahub.liteflow.builder.el.operator.AnyOperator;
+import com.yomahub.liteflow.builder.el.operator.DataOperator;
+import com.yomahub.liteflow.builder.el.operator.ElifOperator;
+import com.yomahub.liteflow.builder.el.operator.ElseOperator;
+import com.yomahub.liteflow.builder.el.operator.EndOperator;
+import com.yomahub.liteflow.builder.el.operator.IdOperator;
+import com.yomahub.liteflow.builder.el.operator.IfOperator;
+import com.yomahub.liteflow.builder.el.operator.IgnoreErrorOperator;
+import com.yomahub.liteflow.builder.el.operator.InvokeOperator;
+import com.yomahub.liteflow.builder.el.operator.TagOperator;
+import com.yomahub.liteflow.builder.el.operator.ThenOperator;
+import com.yomahub.liteflow.builder.el.operator.WhenOperator;
 import com.yomahub.liteflow.common.ChainConstant;
 import com.yomahub.liteflow.exception.DataNotFoundException;
 import com.yomahub.liteflow.exception.ELParseException;
@@ -56,8 +67,8 @@ public class LiteFlowChainELBuilder {
         EXPRESS_RUNNER.addFunction(ChainConstant.THEN, new ThenOperator());
         EXPRESS_RUNNER.addFunction(ChainConstant.WHEN, new WhenOperator());
 //        EXPRESS_RUNNER.addFunction(ChainConstant.SWITCH, new SwitchOperator());
-        EXPRESS_RUNNER.addFunction(ChainConstant.PRE, new PreOperator());
-        EXPRESS_RUNNER.addFunction(ChainConstant.FINALLY, new FinallyOperator());
+//        EXPRESS_RUNNER.addFunction(ChainConstant.PRE, new PreOperator());
+//        EXPRESS_RUNNER.addFunction(ChainConstant.FINALLY, new FinallyOperator());
         EXPRESS_RUNNER.addFunction(ChainConstant.IF, new IfOperator());
 
         EXPRESS_RUNNER.addFunction(ChainConstant.INVOKE, new InvokeOperator());
@@ -128,6 +139,8 @@ public class LiteFlowChainELBuilder {
         List<String> errorList = new ArrayList<>();
         try {
             DefaultContext<String, Object> context = new DefaultContext<>();
+
+            context.put("CONTRACT_ID", contractId);
 
             //这里一定要先放chain，再放node，因为node优先于chain，所以当重名时，node会覆盖掉chain
             //往上下文里放入所有的chain，是的el表达式可以直接引用到chain

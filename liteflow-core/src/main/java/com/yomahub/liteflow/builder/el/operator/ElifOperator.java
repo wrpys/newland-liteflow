@@ -7,6 +7,7 @@ import com.yomahub.liteflow.builder.el.operator.base.OperatorHelper;
 import com.yomahub.liteflow.core.NodeIfComponent;
 import com.yomahub.liteflow.enums.NodeTypeEnum;
 import com.yomahub.liteflow.exception.ELParseException;
+import com.yomahub.liteflow.flow.FlowBus;
 import com.yomahub.liteflow.flow.element.Executable;
 import com.yomahub.liteflow.flow.element.Node;
 import com.yomahub.liteflow.flow.element.condition.IfCondition;
@@ -48,12 +49,22 @@ public class ElifOperator extends BaseOperator<IfCondition> {
         nodeIfComponent.setNodeId(StrUtil.format("ELIF('{}')", expr));
         node.setInstance(nodeIfComponent);
         node.setType(NodeTypeEnum.IF);
+        node.setRunId(FlowBus.getRunId(this.getContractId()));
 
         //解析第二个参数
-        Executable trueCaseExecutableItem = OperatorHelper.convert(objects[2], Executable.class);
+        Executable trueCaseExecutableItem;
+        if (objects[2] instanceof Node) {
+            Node nodeTmp = (Node) objects[2];
+            Node n = nodeTmp.copy();
+            n.setRunId(FlowBus.getRunId(this.getContractId()));
+            trueCaseExecutableItem = n;
+        } else {
+            trueCaseExecutableItem = OperatorHelper.convert(objects[2], Executable.class);
+        }
 
         //构建一个内部的IfCondition
         IfCondition ifConditionItem = new IfCondition();
+//        ifConditionItem.setRunId(FlowBus.getRunId(this.getContractId()));
         ifConditionItem.setExecutableList(ListUtil.toList(node));
         ifConditionItem.setTrueCaseExecutableItem(trueCaseExecutableItem);
 

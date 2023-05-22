@@ -7,6 +7,7 @@ import com.yomahub.liteflow.builder.el.operator.base.OperatorHelper;
 import com.yomahub.liteflow.core.NodeIfComponent;
 import com.yomahub.liteflow.enums.NodeTypeEnum;
 import com.yomahub.liteflow.exception.ELParseException;
+import com.yomahub.liteflow.flow.FlowBus;
 import com.yomahub.liteflow.flow.element.Executable;
 import com.yomahub.liteflow.flow.element.Node;
 import com.yomahub.liteflow.flow.element.condition.IfCondition;
@@ -25,7 +26,7 @@ public class IfOperator extends BaseOperator<IfCondition> {
 
     @Override
     public IfCondition build(Object[] objects) throws Exception {
-        OperatorHelper.checkObjectSizeEq(objects, 2, 3);
+        OperatorHelper.checkObjectSizeEq(objects, 2);
 
         //解析第一个参数
         final String expr = OperatorHelper.convert(objects[0], String.class);
@@ -45,20 +46,23 @@ public class IfOperator extends BaseOperator<IfCondition> {
         nodeIfComponent.setNodeId(StrUtil.format("IF('{}')", expr));
         node.setInstance(nodeIfComponent);
         node.setType(NodeTypeEnum.IF);
+        node.setRunId(FlowBus.getRunId(this.getContractId()));
 
         //解析第二个参数
-        Executable trueCaseExecutableItem = OperatorHelper.convert(objects[1], Executable.class);
-
-        //解析第三个参数，如果有的话
-        Executable falseCaseExecutableItem = null;
-        if (objects.length == 3) {
-            falseCaseExecutableItem = OperatorHelper.convert(objects[2], Executable.class);
+        Executable trueCaseExecutableItem;
+        if (objects[1] instanceof Node) {
+            Node nodeTmp = (Node) objects[1];
+            Node n = nodeTmp.copy();
+            n.setRunId(FlowBus.getRunId(this.getContractId()));
+            trueCaseExecutableItem = n;
+        } else {
+            trueCaseExecutableItem = OperatorHelper.convert(objects[1], Executable.class);
         }
 
         IfCondition ifCondition = new IfCondition();
+//        ifCondition.setRunId(FlowBus.getRunId(this.getContractId()));
         ifCondition.setExecutableList(ListUtil.toList(node));
         ifCondition.setTrueCaseExecutableItem(trueCaseExecutableItem);
-        ifCondition.setFalseCaseExecutableItem(falseCaseExecutableItem);
         return ifCondition;
     }
 }
