@@ -35,7 +35,7 @@ public class InvokeCondition extends Condition {
         // TODO 调用函数服务
         StringBuilder url = new StringBuilder("http://localhost:8080/custom/");
         url.append(funName).append("/").append(funVersion);
-        String body = HttpUtil.post(url.toString(), JsonUtil.toJsonString(context.getInput()));
+        String body = HttpUtil.post(url.toString(), JsonUtil.toJsonString(context.getData()));
 
         Event event = JsonUtil.parseObject(body, Event.class);
         if (Objects.equals(event.getCode(), "1")) {

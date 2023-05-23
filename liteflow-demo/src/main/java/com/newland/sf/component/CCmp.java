@@ -21,11 +21,11 @@ public class CCmp extends NodeComponent {
 
         ContractContext<Cdr> context = this.getContextBean(ContractContext.class);
 
-        Cdr cdr = context.getInput();
+        Cdr cdr = context.getData();
         String test = cdr.getData() == null ? "" : cdr.getData() + ",";
         cdr.setData(test + "c");
 
-        context.setOutput(cdr);
+        context.setData(cdr);
     }
 
 }

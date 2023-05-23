@@ -10,33 +10,20 @@ import com.yomahub.liteflow.model.base.Event;
  */
 public class ContractContext<T extends Event> extends DefaultContext {
 
-    private T input;
-
-    private T output;
+    private T data;
 
     private Class<T> clazz;
-
-//    public ContractContext() {
-//    }
 
     public ContractContext(Class<T> clazz) {
         this.clazz = clazz;
     }
 
-    public T getInput() {
-        return input;
+    public T getData() {
+        return data;
     }
 
-    public void setInput(T input) {
-        this.input = input;
-    }
-
-    public T getOutput() {
-        return output;
-    }
-
-    public void setOutput(T output) {
-        this.output = output;
+    public void setData(T data) {
+        this.data = data;
     }
 
     public Class<T> getClazz() {

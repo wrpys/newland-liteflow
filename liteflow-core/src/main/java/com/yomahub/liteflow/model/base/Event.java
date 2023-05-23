@@ -1,10 +1,12 @@
 package com.yomahub.liteflow.model.base;
 
 /**
+ * 事件参数
+ *
  * @author WRP
  * @since 2023/3/28
  */
-public class Event {
+public class Event extends FlowParam {
 
     private String eventId;
 

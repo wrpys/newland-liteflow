@@ -105,9 +105,9 @@ public abstract class NodeComponent {
             //步骤状态设为true
             cmpStep.setSuccess(true);
 
-//			if (self instanceof NodeFunComponent) {
-//				self.setIsEnd(true);
-//			}
+			if (self instanceof NodeFunComponent) {
+				self.setIsEnd(true);
+			}
 
         } catch (Exception e) {
             //步骤状态设为false，并加入异常

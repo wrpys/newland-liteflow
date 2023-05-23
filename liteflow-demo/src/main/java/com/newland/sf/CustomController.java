@@ -75,7 +75,7 @@ public class CustomController {
                 // TODO 契约下载
                 // 执行契约
                 ContractContext<Cdr> contractContext = new ContractContext<>(Cdr.class);
-                contractContext.setInput(cdr);
+                contractContext.setData(cdr);
 
 //                DefaultContext defaultContext = new DefaultContext();
 //                defaultContext.setData("input", cdr);
@@ -102,6 +102,12 @@ public class CustomController {
     public Cdr chachong(@RequestBody Cdr cdr) {
         LOGGER.info("CDR:{}", Json.toJson(cdr));
         cdr.setChachongData("data1");
+
+        ContractContext<Cdr> contractContext = new ContractContext<>(Cdr.class);
+        contractContext.setData(cdr);
+
+        LiteflowResponse response = flowExecutor.execute2Resp(cdr.getContractId(), cdr.getChainId(), null, contractContext);
+
         return cdr;
     }
 

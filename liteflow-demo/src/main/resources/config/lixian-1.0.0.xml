@@ -9,29 +9,29 @@
     </funs>
 
     <chain name="lixian-1.0.0">
-        IF('input.chachongData!=null', INVOKE('yaosuqiuqu', '1.0.0'))
-        .ELIF('input.yaosuqiuquData!=null', INVOKE('pijia', '1.0.0'))
-        .ELIF('input.pijiaData!=null', INVOKE('koukuan', '1.0.0'))
+        IF('data.chachongData!=null', INVOKE('yaosuqiuqu', '1.0.0'))
+        .ELIF('data.yaosuqiuquData!=null', INVOKE('pijia', '1.0.0'))
+        .ELIF('data.pijiaData!=null', INVOKE('koukuan', '1.0.0'))
         .ELSE(INVOKE('chachong', '1.0.0'));
     </chain>
 
     <chain name="chachong" version="1.0.0">
-        IF('output.chachongData!=null', INVOKE('yaosuqiuqu', '1.0.0'))
+        IF('data.chachongData!=null', INVOKE('yaosuqiuqu', '1.0.0'))
         .ELSE(END());
     </chain>
 
     <chain name="yaosuqiuqu" version="1.0.0">
-        IF('output.yaosuqiuquData!=null', INVOKE('pijia', '1.0.0'))
+        IF('data.yaosuqiuquData!=null', INVOKE('pijia', '1.0.0'))
         .ELSE(END());
     </chain>
 
     <chain name="pijia" version="1.0.0">
-        IF('output.pijiaData!=null', INVOKE('koukuan', '1.0.0'))
+        IF('data.pijiaData!=null', INVOKE('koukuan', '1.0.0'))
         .ELSE(END());
     </chain>
 
     <chain name="koukuan" version="1.0.0">
-        IF('output.koukuanData!=null', END())
+        IF('data.koukuanData!=null', END())
         .ELSE(END());
     </chain>
 </flow>

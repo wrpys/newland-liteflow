@@ -36,7 +36,7 @@ public class EndCondition extends Condition {
         // TODO 调用结束回调接口
         StringBuilder url = new StringBuilder("http://localhost:8080/custom/end");
         LOGGER.info("url:{}", url);
-        String body = HttpUtil.post(url.toString(), JsonUtil.toJsonString(context.getOutput()));
+        String body = HttpUtil.post(url.toString(), JsonUtil.toJsonString(context.getData()));
         Event event = JsonUtil.parseObject(body, Event.class);
         if (Objects.equals(event.getCode(), "1")) {
 

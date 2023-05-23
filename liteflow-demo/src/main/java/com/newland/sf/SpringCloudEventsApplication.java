@@ -81,21 +81,23 @@ public class SpringCloudEventsApplication {
             }
         };
         nacosParserHelper.listener("flow.el.xml", "DEFAULT_GROUP", parseConsumer);
-
-
         return response.getRequestId();
     }
 
     @GetMapping("test2")
     public String execute2(@RequestParam("contractId") String contractId, @RequestParam("chainId") String chainId) {
-
         ContractContext<Cdr> contractContext = new ContractContext<>(Cdr.class);
         Cdr cdr = new Cdr();
         cdr.setContractId(contractId);
-        contractContext.setInput(cdr);
+        contractContext.setData(cdr);
 
         LiteflowResponse response = flowExecutor.execute2Resp(contractId, chainId, null, contractContext);
 
+        return response.getExecuteStepStr();
+    }
+
+    @GetMapping("printFlowInfo")
+    public void printFlowInfo() {
         Map<String, Map<String, Chain>> chainMap = FlowBus.getChainMap();
         for (String k : chainMap.keySet()) {
             System.out.println("===" + k + "===begin");
@@ -111,8 +113,6 @@ public class SpringCloudEventsApplication {
             }
             System.out.println("===" + k + "===end");
         }
-
-        return response.getExecuteStepStr();
     }
 
     private void condition(Condition c) {
@@ -193,7 +193,7 @@ public class SpringCloudEventsApplication {
         ContractContext<Cdr> contractContext = new ContractContext<>(Cdr.class);
         Cdr cdr = new Cdr();
         cdr.setContractId(contractId);
-        contractContext.setInput(cdr);
+        contractContext.setData(cdr);
 
         Integer slotIndex = DataBus.offerSlotByBean(ListUtil.toList(contractContext));
 
@@ -273,8 +273,7 @@ public class SpringCloudEventsApplication {
                     Object output = joinPoint.proceed();
 
                     ContractContext context = new ContractContext<>(Cdr.class);
-                    context.setInput(input);
-                    context.setOutput((Event) output);
+                    context.setData((Event) output);
                     LiteflowResponse response = flowExecutor.execute2Resp(input.getFunName(), null, context);
 
                 } catch (InterruptedException e) {

@@ -27,7 +27,7 @@ public class IfOperator extends BaseOperator<IfCondition> {
 
         //解析第一个参数
         final String expr = OperatorHelper.convert(objects[0], String.class);
-        if (!expr.startsWith("input") && !expr.startsWith("output")) {
+        if (!expr.startsWith("data")) {
             LOGGER.error("Spring EL表达式[{}]有误，使用不存在的变量！", expr);
             throw new ELParseException("Spring EL表达式[" + expr + "]有误，使用不存在的变量！");
         }
