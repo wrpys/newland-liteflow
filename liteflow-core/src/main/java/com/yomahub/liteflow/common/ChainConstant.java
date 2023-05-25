@@ -41,9 +41,9 @@ public interface ChainConstant {
 
 //    String SWITCH = "SWITCH";
 
-    String PRE = "PRE";
+//    String PRE = "PRE";
 
-    String FINALLY = "FINALLY";
+//    String FINALLY = "FINALLY";
 
     String IF = "IF";
 

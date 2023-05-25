@@ -11,7 +11,6 @@ package com.yomahub.liteflow.spring;
 import com.yomahub.liteflow.aop.ICmpAroundAspect;
 import com.yomahub.liteflow.core.NodeComponent;
 import com.yomahub.liteflow.property.LiteflowConfig;
-import com.yomahub.liteflow.util.LOGOPrinter;
 import com.yomahub.liteflow.util.LiteFlowProxyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,14 +36,12 @@ public class ComponentScanner implements BeanPostProcessor {
     public static ICmpAroundAspect cmpAroundAspect;
 
     public ComponentScanner() {
-        LOGOPrinter.print();
     }
 
     public ComponentScanner(LiteflowConfig liteflowConfig) {
         this.liteflowConfig = liteflowConfig;
         if (liteflowConfig.getPrintBanner()) {
-            // 打印liteflow的LOGO
-            LOGOPrinter.print();
+
         }
     }
 
