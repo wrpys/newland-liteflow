@@ -2,9 +2,7 @@ package com.yomahub.liteflow.builder.el.operator;
 
 import com.yomahub.liteflow.builder.el.operator.base.BaseOperator;
 import com.yomahub.liteflow.builder.el.operator.base.OperatorHelper;
-import com.yomahub.liteflow.flow.FlowBus;
 import com.yomahub.liteflow.flow.element.Executable;
-import com.yomahub.liteflow.flow.element.Node;
 import com.yomahub.liteflow.flow.element.condition.IfCondition;
 
 /**
@@ -22,15 +20,7 @@ public class ElseOperator extends BaseOperator<IfCondition> {
 
 		IfCondition ifCondition = OperatorHelper.convert(objects[0], IfCondition.class);
 
-		Executable elseExecutableItem;
-		if (objects[1] instanceof Node) {
-			Node nodeTmp = (Node) objects[1];
-			Node n = nodeTmp.copy();
-			n.setRunId(FlowBus.getRunId(this.getContractId()));
-			elseExecutableItem = n;
-		} else {
-			elseExecutableItem = OperatorHelper.convert(objects[1], Executable.class);
-		}
+		Executable elseExecutableItem = buildExecutable(objects[1]);
 
 		// 因为当中可能会有多个ELIF，所以并不知道这个ELSE前面有没有ELIF，
 		// 每一次拿到的caller总是最开始大的if，需要遍历到没有falseCaseExecutable的地方。

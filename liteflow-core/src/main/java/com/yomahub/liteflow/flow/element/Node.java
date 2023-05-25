@@ -78,6 +78,7 @@ public class Node implements Executable,Cloneable{
 		this.version = instance.getVersion();
 	}
 
+	@Override
 	public String getRunId() {
 		return runId;
 	}
@@ -143,6 +144,11 @@ public class Node implements Executable,Cloneable{
 		}
 
 		Slot slot = DataBus.getSlot(slotIndex);
+
+		if (slot.isSkip()) {
+			return;
+		}
+
 		try {
 			//把线程属性赋值给组件对象
 			instance.setSlotIndex(slotIndex);

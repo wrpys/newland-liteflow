@@ -2,6 +2,7 @@ package com.yomahub.liteflow.core;
 
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
+import com.yomahub.liteflow.flow.FlowContent;
 import com.yomahub.liteflow.model.base.Event;
 import com.yomahub.liteflow.slot.ContractContext;
 import com.yomahub.liteflow.util.JsonUtil;
@@ -29,6 +30,7 @@ public abstract class NodeFunComponent extends NodeComponent {
         data.setRequestId(this.getSlot().getRequestId());
         data.setChainId(this.getChainId());
         data.setPreRunId(this.getRefNode().getRunId());
+        data.setStepResultMap(FlowContent.getStepResultMap(this.getSlot().getRequestId()));
 
         // TODO 调用函数服务
         StringBuilder url = new StringBuilder("http://localhost:8080/custom/");

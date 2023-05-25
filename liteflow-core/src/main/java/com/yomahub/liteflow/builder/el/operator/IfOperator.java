@@ -6,7 +6,6 @@ import com.yomahub.liteflow.builder.el.operator.base.OperatorHelper;
 import com.yomahub.liteflow.exception.ELParseException;
 import com.yomahub.liteflow.flow.FlowBus;
 import com.yomahub.liteflow.flow.element.Executable;
-import com.yomahub.liteflow.flow.element.Node;
 import com.yomahub.liteflow.flow.element.condition.IfCondition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,21 +31,14 @@ public class IfOperator extends BaseOperator<IfCondition> {
             throw new ELParseException("Spring EL表达式[" + expr + "]有误，使用不存在的变量！");
         }
 
-        //解析第二个参数
-        Executable trueCaseExecutableItem;
-        if (objects[1] instanceof Node) {
-            Node nodeTmp = (Node) objects[1];
-            Node n = nodeTmp.copy();
-            n.setRunId(FlowBus.getRunId(this.getContractId()));
-            trueCaseExecutableItem = n;
-        } else {
-            trueCaseExecutableItem = OperatorHelper.convert(objects[1], Executable.class);
-        }
-
         IfCondition ifCondition = new IfCondition();
         ifCondition.setId(StrUtil.format("IF('{}')", expr));
         ifCondition.setRunId(FlowBus.getRunId(this.getContractId()));
         ifCondition.setExpr(expr);
+
+        //解析第二个参数
+        Executable trueCaseExecutableItem = buildExecutable(objects[1]);
+
         ifCondition.setTrueCaseExecutableItem(trueCaseExecutableItem);
         return ifCondition;
     }

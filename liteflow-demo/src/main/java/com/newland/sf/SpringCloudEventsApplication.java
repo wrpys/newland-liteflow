@@ -138,7 +138,10 @@ public class SpringCloudEventsApplication {
         System.out.println(ifCondition.getConditionType().getType() + "," + ifCondition.getId() + "," + ifCondition.getRunId());
 
         Executable executable = ifCondition.getTrueCaseExecutableItem();
-        if (executable instanceof Condition) {
+        if (executable instanceof Chain) {
+            Chain c = (Chain) executable;
+            System.out.println(c.getChainId() + "," + c.getChainId() + "," + c.getChainId());
+        } else if (executable instanceof Condition) {
             condition((Condition) executable);
         } else if (executable instanceof Node) {
             Node n = (Node) executable;
@@ -146,7 +149,10 @@ public class SpringCloudEventsApplication {
         }
 
         executable = ifCondition.getFalseCaseExecutableItem();
-        if (executable instanceof Condition) {
+        if (executable instanceof Chain) {
+            Chain c = (Chain) executable;
+            System.out.println(c.getChainId() + "," + c.getChainId() + "," + c.getChainId());
+        } else if (executable instanceof Condition) {
             condition((Condition) executable);
         } else if (executable instanceof Node) {
             Node n = (Node) executable;
@@ -161,7 +167,10 @@ public class SpringCloudEventsApplication {
         List<Executable> executables = thenCondition.getExecutableList();
         if (executables != null) {
             for (Executable executable : executables) {
-                if (executable instanceof Condition) {
+                if (executable instanceof Chain) {
+                    Chain c = (Chain) executable;
+                    System.out.println(c.getChainId() + "," + c.getChainId() + "," + c.getChainId());
+                } else if (executable instanceof Condition) {
                     condition((Condition) executable);
                 } else if (executable instanceof Node) {
                     Node n = (Node) executable;
@@ -177,7 +186,10 @@ public class SpringCloudEventsApplication {
         List<Executable> executables = whenCondition.getExecutableList();
         if (executables != null) {
             for (Executable executable : executables) {
-                if (executable instanceof Condition) {
+                if (executable instanceof Chain) {
+                    Chain c = (Chain) executable;
+                    System.out.println(c.getChainId() + "," + c.getChainId() + "," + c.getChainId());
+                } else if (executable instanceof Condition) {
                     condition((Condition) executable);
                 } else if (executable instanceof Node) {
                     Node n = (Node) executable;

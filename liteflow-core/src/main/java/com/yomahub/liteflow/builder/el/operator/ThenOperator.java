@@ -4,8 +4,6 @@ import com.yomahub.liteflow.builder.el.operator.base.BaseOperator;
 import com.yomahub.liteflow.builder.el.operator.base.OperatorHelper;
 import com.yomahub.liteflow.common.ChainConstant;
 import com.yomahub.liteflow.flow.FlowBus;
-import com.yomahub.liteflow.flow.element.Executable;
-import com.yomahub.liteflow.flow.element.Node;
 import com.yomahub.liteflow.flow.element.condition.ThenCondition;
 
 /**
@@ -25,14 +23,7 @@ public class ThenOperator extends BaseOperator<ThenCondition> {
         thenCondition.setId(ChainConstant.THEN);
 
         for (Object obj : objects) {
-            if (obj instanceof Node) {
-                Node node = (Node) obj;
-                Node n = node.copy();
-                n.setRunId(FlowBus.getRunId(this.getContractId()));
-                thenCondition.addExecutable(n);
-            } else {
-                thenCondition.addExecutable(OperatorHelper.convert(obj, Executable.class));
-            }
+            thenCondition.addExecutable(buildExecutable(obj));
         }
         return thenCondition;
     }

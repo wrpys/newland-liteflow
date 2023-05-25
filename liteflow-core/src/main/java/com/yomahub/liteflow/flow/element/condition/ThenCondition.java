@@ -56,17 +56,14 @@ public class ThenCondition extends Condition {
 //			}
 
 			for (Executable executableItem : this.getExecutableList()) {
-//				if (executableItem instanceof Node) {
-//					Node node = (Node) executableItem;
-//					if (node.getType().getCode().equals(NodeTypeEnum.FUN.getCode())) {
-//						if (node.getId().equals("pijia")) {
-//							executableItem.setCurrChainId(this.getCurrChainId());
-//							node.execute(slotIndex);
-//						}
-//					}
-//				}
 				executableItem.setCurrChainId(this.getCurrChainId());
 				executableItem.execute(slotIndex);
+
+				if (slot.isSkip()) {
+					if (slot.getPreRunId().equals(executableItem.getRunId())) {
+						slot.setIsSkip(false);
+					}
+				}
 			}
 		}catch (ChainEndException e){
 			//这里单独catch ChainEndException是因为ChainEndException是用户自己setIsEnd抛出的异常

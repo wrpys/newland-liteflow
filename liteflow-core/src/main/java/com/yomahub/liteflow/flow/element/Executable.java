@@ -39,6 +39,8 @@ public interface Executable{
     
     String getExecuteId();
 
+    String getRunId();
+
     default void setCurrChainId(String currentChainId){
 
     }

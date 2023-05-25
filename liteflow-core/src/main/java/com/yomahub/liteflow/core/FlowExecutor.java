@@ -25,6 +25,7 @@ import com.yomahub.liteflow.exception.FlowExecutorNotInitException;
 import com.yomahub.liteflow.exception.MultipleParsersException;
 import com.yomahub.liteflow.exception.NoAvailableSlotException;
 import com.yomahub.liteflow.flow.FlowBus;
+import com.yomahub.liteflow.flow.FlowContent;
 import com.yomahub.liteflow.flow.LiteflowResponse;
 import com.yomahub.liteflow.flow.element.Chain;
 import com.yomahub.liteflow.flow.element.Node;
@@ -46,6 +47,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.Future;
@@ -256,6 +258,11 @@ public class FlowExecutor {
         return this.execute2Resp(contractId, chainId, param, null, contextBeanArray);
     }
 
+    public LiteflowResponse execute2Resp2(String contractId, String chainId, String preRunId, String requestId, Map<String, Object> stepResultMap, Object contextBean) {
+        Slot slot = doExecute(contractId, chainId, preRunId, requestId, stepResultMap, contextBean, null, InnerChainTypeEnum.NONE);
+        return LiteflowResponse.newMainResponse(slot);
+    }
+
     //调用一个流程并返回Future<LiteflowResponse>，允许多上下文的传入
     public Future<LiteflowResponse> execute2Future(String contractId, String chainId, Object param, Class<?>... contextBeanClazzArray) {
         return ExecutorHelper.loadInstance().buildMainExecutor(liteflowConfig.getMainExecutorClass()).submit(()
@@ -396,6 +403,117 @@ public class FlowExecutor {
                 slot.printStep();
                 DataBus.releaseSlot(slotIndex);
             }
+            FlowContent.removeStepResultMap(slot.getRequestId());
+        }
+        return slot;
+    }
+
+    private Slot doExecute(String contractId,
+                           String chainId,
+                           String preRunId,
+                           String requestId,
+                           Map<String, Object> stepResultMap,
+                           Object contextBean,
+                           Integer slotIndex,
+                           InnerChainTypeEnum innerChainType) {
+        if (FlowBus.needInit()) {
+            init(true);
+        }
+
+        FlowContent.setStepResultMap(requestId, stepResultMap);
+
+        //如果不是隐式流程，那么需要分配Slot
+        if (innerChainType.equals(InnerChainTypeEnum.NONE) && ObjectUtil.isNull(slotIndex)) {
+            slotIndex = DataBus.offerSlotByBean(ListUtil.toList(contextBean));
+            if (BooleanUtil.isTrue(liteflowConfig.getPrintExecutionLog())) {
+                LOG.info("slot[{}] offered", slotIndex);
+            }
+        }
+
+        if (slotIndex == -1) {
+            throw new NoAvailableSlotException("there is no available slot");
+        }
+
+
+        Slot slot = DataBus.getSlot(slotIndex);
+        if (ObjectUtil.isNull(slot)) {
+            throw new NoAvailableSlotException(StrUtil.format("the slot[{}] is not exist", slotIndex));
+        }
+
+        if (preRunId != null) {
+            slot.setPreRunId(preRunId);
+            slot.setIsSkip(true);
+        }
+
+        //如果是隐式流程，事先把subException给置空，然后把隐式流程的chainId放入slot元数据中
+        //我知道这在多线程调用隐式流程中会有问题。但是考虑到这种场景的不会多，也有其他的转换方式。
+        //所以暂且这么做，以后再优化
+        if (!innerChainType.equals(InnerChainTypeEnum.NONE)){
+            slot.removeSubException(chainId);
+            slot.addSubChain(chainId);
+        }
+
+        if (StrUtil.isBlank(slot.getRequestId())) {
+            slot.setRequestId(requestId);
+//            if (BooleanUtil.isTrue(liteflowConfig.getPrintExecutionLog())) {
+//                LOG.info("requestId[{}] has generated", slot.getRequestId());
+//            }
+        }
+
+//        if (ObjectUtil.isNotNull(param)) {
+//            if (innerChainType.equals(InnerChainTypeEnum.NONE)) {
+//                slot.setRequestData(param);
+//            } else if(innerChainType.equals(InnerChainTypeEnum.IN_SYNC)){
+//                slot.setChainReqData(chainId, param);
+//            } else if(innerChainType.equals(InnerChainTypeEnum.IN_ASYNC)){
+//                slot.setChainReqData2Queue(chainId, param);
+//            }
+//        }
+
+        Chain chain = null;
+        try {
+            chain = FlowBus.getChain(contractId, chainId);
+
+            if (ObjectUtil.isNull(chain)) {
+                String errorMsg = StrUtil.format("[{}]:couldn't find chain with the id[{}]", slot.getRequestId(), chainId);
+                throw new ChainNotFoundException(errorMsg);
+            }
+            // 执行chain
+            chain.execute(slotIndex);
+        } catch (ChainEndException e) {
+            if (ObjectUtil.isNotNull(chain)) {
+                String warnMsg = StrUtil.format("[{}]:chain[{}] execute end on slot[{}]", slot.getRequestId(), chain.getChainName(), slotIndex);
+                LOG.warn(warnMsg);
+            }
+        } catch (Exception e) {
+            if (ObjectUtil.isNotNull(chain)) {
+                String errMsg = StrUtil.format("[{}]:chain[{}] execute error on slot[{}]", slot.getRequestId(), chain.getChainName(), slotIndex);
+                if (BooleanUtil.isTrue(liteflowConfig.getPrintExecutionLog())){
+                    LOG.error(errMsg, e);
+                }else{
+                    LOG.error(errMsg);
+                }
+            }else{
+                if (BooleanUtil.isTrue(liteflowConfig.getPrintExecutionLog())){
+                    LOG.error(e.getMessage(), e);
+                }else{
+                    LOG.error(e.getMessage());
+                }
+            }
+
+            //如果是正常流程需要把异常设置到slot的exception属性里
+            //如果是隐式流程，则需要设置到隐式流程的exception属性里
+            if (innerChainType.equals(InnerChainTypeEnum.NONE)) {
+                slot.setException(e);
+            }else{
+                slot.setSubException(chainId, e);
+            }
+        } finally {
+            if (innerChainType.equals(InnerChainTypeEnum.NONE)) {
+                slot.printStep();
+                DataBus.releaseSlot(slotIndex);
+            }
+            FlowContent.removeStepResultMap(requestId);
         }
         return slot;
     }

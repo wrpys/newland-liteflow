@@ -78,6 +78,9 @@ public class Slot{
 
 	private static final String SUB_CHAIN = "_sub_chain";
 
+	private static final String PRE_RUN_ID = "_pre_run_id";
+	private static final String IS_SKIP = "_is_skip";
+
 	private final Deque<CmpStep> executeSteps = new ConcurrentLinkedDeque<>();
 
 	private String executeStepsStr;
@@ -346,8 +349,29 @@ public class Slot{
 		metaDataMap.put(REQUEST_ID, IdGeneratorHolder.getInstance().generate());
 	}
 
+	public void setRequestId(String requestId) {
+		metaDataMap.put(REQUEST_ID, requestId);
+	}
+
 	public String getRequestId() {
 		return (String) metaDataMap.get(REQUEST_ID);
+	}
+
+	public void setPreRunId(String preRunId) {
+		metaDataMap.put(PRE_RUN_ID, preRunId);
+	}
+
+	public String getPreRunId() {
+		return (String) metaDataMap.get(PRE_RUN_ID);
+	}
+
+	public void setIsSkip(boolean isSkip) {
+		metaDataMap.put(IS_SKIP, isSkip);
+	}
+
+	public boolean isSkip() {
+		Boolean isSkip = (Boolean) metaDataMap.get(IS_SKIP);
+		return isSkip == null ? false : isSkip;
 	}
 
 	public Deque<CmpStep> getExecuteSteps() {

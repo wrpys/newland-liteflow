@@ -10,7 +10,11 @@ import com.ql.util.express.exception.QLException;
 import com.ql.util.express.instruction.OperateDataCacheManager;
 import com.ql.util.express.instruction.op.OperatorBase;
 import com.yomahub.liteflow.exception.ELParseException;
+import com.yomahub.liteflow.flow.FlowBus;
+import com.yomahub.liteflow.flow.element.Chain;
 import com.yomahub.liteflow.flow.element.Executable;
+import com.yomahub.liteflow.flow.element.Node;
+import com.yomahub.liteflow.flow.element.condition.Condition;
 
 /**
  * BaseOperator 为了强化 executeInner 方法，会捕获抛出的 QLException 错误，输出友好的错误提示
@@ -74,4 +78,22 @@ public abstract class BaseOperator<T extends Executable> extends OperatorBase {
      * @throws Exception Exception
      */
     public abstract T build(Object[] objects) throws Exception;
+
+    public Executable buildExecutable(Object obj) throws Exception {
+        if (obj instanceof Node) {
+            Node node = (Node) obj;
+            Node n = node.copy();
+            n.setRunId(FlowBus.getRunId(this.getContractId()));
+            return n;
+        } else if (obj instanceof Condition){
+            Condition condition = (Condition) obj;
+            return condition;
+        } else if (obj instanceof Chain) {
+            Chain chain = (Chain) obj;
+            return chain;
+        } else {
+            throw new ELParseException("未知类型，请检查！" + obj.getClass());
+        }
+    }
+
 }

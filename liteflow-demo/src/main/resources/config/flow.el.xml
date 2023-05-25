@@ -19,7 +19,7 @@
         THEN(chachong, yaosuqiuqu, pijia, koukuan);
     </chain>
     <chain name="chain2">
-        THEN(IF('data.contractId == "test"', b).ELIF('data.contractId == "flow.el-1.0.0.xml"', a).ELSE(c), chachong, END());
+        THEN(IF('data.contractId == "test"', chachong).ELIF('data.contractId == "flow.el-1.0.0.xml"', yaosuqiuqu).ELSE(c), pijia, END());
     </chain>
 
     <chain name="chain3">

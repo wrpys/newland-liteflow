@@ -60,6 +60,7 @@ public abstract class Condition implements Executable{
 
 	public abstract ConditionTypeEnum getConditionType();
 
+	@Override
 	public String getRunId() {
 		return runId;
 	}

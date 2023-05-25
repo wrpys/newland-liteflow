@@ -6,6 +6,7 @@ import com.newland.sf.config.EventContractConfig;
 import com.newland.sf.model.Cdr;
 import com.newland.sf.utils.Json;
 import com.yomahub.liteflow.core.FlowExecutor;
+import com.yomahub.liteflow.flow.FlowContent;
 import com.yomahub.liteflow.flow.LiteflowResponse;
 import com.yomahub.liteflow.slot.ContractContext;
 import com.yomahub.liteflow.util.SpringExpressionUtil;
@@ -102,11 +103,18 @@ public class CustomController {
     public Cdr chachong(@RequestBody Cdr cdr) {
         LOGGER.info("CDR:{}", Json.toJson(cdr));
         cdr.setChachongData("data1");
+        cdr.setCode("1");
 
-        ContractContext<Cdr> contractContext = new ContractContext<>(Cdr.class);
-        contractContext.setData(cdr);
-
-        LiteflowResponse response = flowExecutor.execute2Resp(cdr.getContractId(), cdr.getChainId(), null, contractContext);
+        new Thread(()->{
+            ContractContext<Cdr> contractContext = new ContractContext<>(Cdr.class);
+            contractContext.setData(cdr);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            LiteflowResponse response = flowExecutor.execute2Resp2(cdr.getContractId(), cdr.getChainId(), cdr.getPreRunId(), cdr.getRequestId(), cdr.getStepResultMap(), contractContext);
+        }).start();
 
         return cdr;
     }
@@ -122,6 +130,18 @@ public class CustomController {
     public Cdr yaosuqiuqu(@RequestBody Cdr cdr) {
         LOGGER.info("CDR:{}", Json.toJson(cdr));
         cdr.setYaosuqiuquData("data2");
+        cdr.setCode("1");
+
+        new Thread(()->{
+            ContractContext<Cdr> contractContext = new ContractContext<>(Cdr.class);
+            contractContext.setData(cdr);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            LiteflowResponse response = flowExecutor.execute2Resp2(cdr.getContractId(), cdr.getChainId(), cdr.getPreRunId(), cdr.getRequestId(), cdr.getStepResultMap(), contractContext);
+        }).start();
         return cdr;
     }
 
@@ -136,6 +156,18 @@ public class CustomController {
     public Cdr pijia(@RequestBody Cdr cdr) {
         LOGGER.info("CDR:{}", Json.toJson(cdr));
         cdr.setPijiaData("data3");
+        cdr.setCode("1");
+
+        new Thread(()->{
+            ContractContext<Cdr> contractContext = new ContractContext<>(Cdr.class);
+            contractContext.setData(cdr);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            LiteflowResponse response = flowExecutor.execute2Resp2(cdr.getContractId(), cdr.getChainId(), cdr.getPreRunId(), cdr.getRequestId(), cdr.getStepResultMap(), contractContext);
+        }).start();
         return cdr;
     }
 
@@ -150,6 +182,18 @@ public class CustomController {
     public Cdr koukuan(@RequestBody Cdr cdr) {
         LOGGER.info("CDR:{}", Json.toJson(cdr));
         cdr.setKoukuanData("data4");
+        cdr.setCode("1");
+
+        new Thread(()->{
+            ContractContext<Cdr> contractContext = new ContractContext<>(Cdr.class);
+            contractContext.setData(cdr);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            LiteflowResponse response = flowExecutor.execute2Resp2(cdr.getContractId(), cdr.getChainId(), cdr.getPreRunId(), cdr.getRequestId(), cdr.getStepResultMap(), contractContext);
+        }).start();
         return cdr;
     }
 

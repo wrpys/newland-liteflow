@@ -1,5 +1,7 @@
 package com.yomahub.liteflow.model.base;
 
+import java.util.Map;
+
 /**
  * 流程执行参数
  *
@@ -13,6 +15,8 @@ public class FlowParam {
     private String chainId;
 
     private String preRunId;
+
+    private Map<String, Object> stepResultMap;
 
     public String getRequestId() {
         return requestId;
@@ -36,5 +40,13 @@ public class FlowParam {
 
     public void setPreRunId(String preRunId) {
         this.preRunId = preRunId;
+    }
+
+    public Map<String, Object> getStepResultMap() {
+        return stepResultMap;
+    }
+
+    public void setStepResultMap(Map<String, Object> stepResultMap) {
+        this.stepResultMap = stepResultMap;
     }
 }

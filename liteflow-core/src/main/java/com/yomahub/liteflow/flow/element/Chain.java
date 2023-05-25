@@ -136,4 +136,9 @@ public class Chain implements Executable {
     public String getExecuteId() {
         return chainId;
     }
+
+    @Override
+    public String getRunId() {
+        return chainId;
+    }
 }

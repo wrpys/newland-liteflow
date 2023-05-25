@@ -6,6 +6,7 @@ import com.yomahub.liteflow.common.ChainConstant;
 import com.yomahub.liteflow.enums.CmpStepTypeEnum;
 import com.yomahub.liteflow.enums.ConditionTypeEnum;
 import com.yomahub.liteflow.exception.NoIfTrueNodeException;
+import com.yomahub.liteflow.flow.FlowContent;
 import com.yomahub.liteflow.flow.element.Executable;
 import com.yomahub.liteflow.flow.entity.CmpStep;
 import com.yomahub.liteflow.slot.ContractContext;
@@ -31,15 +32,24 @@ public class IfCondition extends Condition {
     public void execute(Integer slotIndex) throws Exception {
         Slot slot = DataBus.getSlot(slotIndex);
 
-        //在元数据里加入step信息
-        CmpStep cmpStep = new CmpStep(this.getId(), null, this.getRunId(), CmpStepTypeEnum.SINGLE);
-        slot.addStep(cmpStep);
+        boolean ifResult;
+        if (slot.isSkip()) {
+            Object result = FlowContent.getStepResult(slot.getRequestId(), this.getRunId());
+            ifResult = (Boolean) result;
+        } else {
+            //在元数据里加入step信息
+            CmpStep cmpStep = new CmpStep(this.getId(), null, this.getRunId(), CmpStepTypeEnum.SINGLE);
+            slot.addStep(cmpStep);
 
-        //判断条件
-        ContractContext context = slot.getContextBean(ContractContext.class);
-        Boolean ifResult = SpringExpressionUtil.parseExpression(expr, context);
+            //判断条件
+            ContractContext context = slot.getContextBean(ContractContext.class);
+            ifResult = SpringExpressionUtil.parseExpression(expr, context);
 
-        cmpStep.setNodeId(cmpStep.getNodeId() + "==" + ifResult);
+            // 保存执行结果
+            FlowContent.addStepResult(slot.getRequestId(), this.getRunId(), ifResult);
+
+            cmpStep.setNodeId(cmpStep.getNodeId() + "==" + ifResult);
+        }
 
         if (ifResult) {
             //trueCaseExecutableItem这个不能为空，否则执行什么呢
@@ -51,6 +61,13 @@ public class IfCondition extends Condition {
             //执行trueCaseExecutableItem
             trueCaseExecutableItem.setCurrChainName(this.getCurrChainName());
             trueCaseExecutableItem.execute(slotIndex);
+
+            if (slot.isSkip()) {
+                if (slot.getPreRunId().equals(trueCaseExecutableItem.getRunId())) {
+                    slot.setIsSkip(false);
+                }
+            }
+
         } else {
             //falseCaseExecutableItem可以为null，但是不为null时就执行否的情况
             if (ObjectUtil.isNotNull(falseCaseExecutableItem)) {
@@ -60,11 +77,18 @@ public class IfCondition extends Condition {
                 //添加 ELSE 步骤信息
                 if (!(falseCaseExecutableItem instanceof IfCondition)) {
                     //在元数据里加入step信息
-                    cmpStep = new CmpStep(ChainConstant.ELSE, ChainConstant.ELSE, ChainConstant.ELSE, CmpStepTypeEnum.SINGLE);
+                    CmpStep cmpStep = new CmpStep(ChainConstant.ELSE, ChainConstant.ELSE, ChainConstant.ELSE, CmpStepTypeEnum.SINGLE);
                     slot.addStep(cmpStep);
                 }
 
                 falseCaseExecutableItem.execute(slotIndex);
+
+                if (slot.isSkip()) {
+                    if (slot.getPreRunId().equals(trueCaseExecutableItem.getRunId())) {
+                        slot.setIsSkip(false);
+                    }
+                }
+
             }
         }
     }
