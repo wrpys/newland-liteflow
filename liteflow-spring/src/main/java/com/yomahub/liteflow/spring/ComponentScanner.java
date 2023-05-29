@@ -75,12 +75,12 @@ public class ComponentScanner implements BeanPostProcessor {
 //        }
 
         // 组件的扫描发现，扫到之后缓存到类属性map中
-        if (NodeComponent.class.isAssignableFrom(clazz)) {
-            LOG.info("component[{}] has been found", beanName);
-            NodeComponent nodeComponent = (NodeComponent) bean;
-            nodeComponentMap.put(beanName, nodeComponent);
-            return nodeComponent;
-        }
+//        if (NodeComponent.class.isAssignableFrom(clazz)) {
+//            LOG.info("component[{}] has been found", beanName);
+//            NodeComponent nodeComponent = (NodeComponent) bean;
+//            nodeComponentMap.put(beanName, nodeComponent);
+//            return nodeComponent;
+//        }
 
         // 组件Aop的实现类加载
         if (ICmpAroundAspect.class.isAssignableFrom(clazz)) {

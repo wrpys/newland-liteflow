@@ -26,4 +26,8 @@
         THEN(THEN(chachong, THEN(yaosuqiuqu)), THEN(pijia, THEN(koukuan)));
     </chain>
 
+    <chain name="chain4">
+        THEN(a, b, c, d);
+    </chain>
+
 </flow>
