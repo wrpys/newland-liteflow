@@ -27,7 +27,9 @@
     </chain>
 
     <chain name="chain4">
-        THEN(a, b, c, d);
+        t1 = THEN(a, b);
+        t2 = THEN(c, d);
+        THEN(t1, t2);
     </chain>
 
 </flow>
