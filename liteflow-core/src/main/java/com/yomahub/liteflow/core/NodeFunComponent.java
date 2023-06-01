@@ -27,7 +27,7 @@ public abstract class NodeFunComponent extends NodeComponent {
         ContractContext context = this.getContextBean(ContractContext.class);
 
         Event data = context.getData();
-        data.setRequestId(this.getSlot().getRequestId());
+        data.setEventId(this.getSlot().getRequestId());
         data.setChainId(this.getChainId());
         data.setPreRunId(this.getRefNode().getRunId());
         data.setStepResultMap(FlowContent.getStepResultMap(this.getSlot().getRequestId()));
@@ -43,6 +43,7 @@ public abstract class NodeFunComponent extends NodeComponent {
 
         // TODO 不关心类型。后面为异步调用。只要调用成功就行。
         Event event = (Event) JsonUtil.parseObject(httpResponse.body(), context.getClazz());
+        LOGGER.info("url:{}, result:{}", url, httpResponse.body());
 
         Class<?> originalClass = LiteFlowProxyUtil.getUserClass(this.getClass());
         if (Objects.equals(event.getCode(), "1")) {

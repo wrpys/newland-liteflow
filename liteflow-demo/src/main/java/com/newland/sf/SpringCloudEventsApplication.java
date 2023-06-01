@@ -1,10 +1,9 @@
 package com.newland.sf;
 
-import cn.hutool.core.collection.ListUtil;
 import com.newland.sf.config.EventContractConfig;
 import com.newland.sf.model.Cdr;
-import com.newland.sf.queue.EventQueue;
 import com.newland.sf.utils.NacosParserHelper;
+import com.newland.sf.work.WorkThread;
 import com.yomahub.liteflow.core.FlowExecutor;
 import com.yomahub.liteflow.flow.FlowBus;
 import com.yomahub.liteflow.flow.LiteflowResponse;
@@ -16,27 +15,20 @@ import com.yomahub.liteflow.flow.element.condition.EndCondition;
 import com.yomahub.liteflow.flow.element.condition.IfCondition;
 import com.yomahub.liteflow.flow.element.condition.ThenCondition;
 import com.yomahub.liteflow.flow.element.condition.WhenCondition;
-import com.yomahub.liteflow.model.base.Event;
 import com.yomahub.liteflow.slot.ContractContext;
-import com.yomahub.liteflow.slot.DataBus;
-import com.yomahub.liteflow.slot.DefaultContext;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 @SpringBootApplication
@@ -54,9 +46,6 @@ public class SpringCloudEventsApplication {
 
     @Resource
     private FlowExecutor flowExecutor;
-
-    @Autowired
-    private EventQueue eventQueue;
 
     @GetMapping("test")
     public String execute(@RequestParam("chainId") String chainId) {
@@ -199,102 +188,13 @@ public class SpringCloudEventsApplication {
         }
     }
 
-    @GetMapping("test3")
-    public Boolean execute3(@RequestParam("contractId") String contractId, @RequestParam("nodeId") String nodeId) throws Exception {
-
-        ContractContext<Cdr> contractContext = new ContractContext<>(Cdr.class);
-        Cdr cdr = new Cdr();
-        cdr.setContractId(contractId);
-        contractContext.setData(cdr);
-
-        Integer slotIndex = DataBus.offerSlotByBean(ListUtil.toList(contractContext));
-
-        flowExecutor.invoke(contractId, nodeId, slotIndex);
-
-        LiteflowResponse response = LiteflowResponse.newMainResponse(DataBus.getSlot(slotIndex));
-        return response.isSuccess();
-    }
-
-    @GetMapping("custom")
-    public String custom(@RequestParam("chainId") String chainId) {
-
-        Map<String, Object> input = new HashMap<>();
-        input.put("id", "1");
-        input.put("eventType", "custom");
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("code", "1");
-        result.put("data", "test");
-
-        DefaultContext defaultContext = new DefaultContext();
-        defaultContext.setData("input", input);
-        defaultContext.setData("result", result);
-        LiteflowResponse response = flowExecutor.execute2Resp(chainId, null, defaultContext);
-        return response.getRequestId();
-    }
-
-    @GetMapping("queue")
-    public Boolean queue() throws InterruptedException {
-
-        if (queue.size() >= 10) {
-            System.out.println("已超过队列长度");
-            return false;
-        }
-
-        System.out.println("插入结果：" + queue.offer(System.currentTimeMillis(), 1000L, TimeUnit.MILLISECONDS));
-        System.out.println("size:" + queue.size());
-
-        return true;
-
-    }
-
     public static void main(String[] args) {
-        new Thread(() -> {
-            while (true) {
-                try {
-                    System.out.println(String.valueOf(Thread.currentThread().getId()) + ":" + queue.take());
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).start();
-        new Thread(() -> {
-            while (true) {
-                try {
-                    System.out.println(String.valueOf(Thread.currentThread().getId()) + ":" + queue.take());
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).start();
-
-
         SpringApplication.run(SpringCloudEventsApplication.class, args);
     }
 
-    @PostConstruct
-    public void init() {
-        new Thread(() -> {
-            while (true) {
-                try {
-                    ProceedingJoinPoint joinPoint = eventQueue.getQueue().take();
-                    Object[] args = joinPoint.getArgs();
-                    Event input = (Event) args[0];
-                    Object output = joinPoint.proceed();
-
-                    ContractContext context = new ContractContext<>(Cdr.class);
-                    context.setData((Event) output);
-                    LiteflowResponse response = flowExecutor.execute2Resp(input.getFunName(), null, context);
-
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                } catch (Throwable e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).start();
+    @Bean
+    public WorkThread workThread() {
+        return new WorkThread(1000, flowExecutor);
     }
 
 }

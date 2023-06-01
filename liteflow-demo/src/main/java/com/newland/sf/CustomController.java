@@ -1,26 +1,23 @@
 package com.newland.sf;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.newland.sf.annotation.SLFFunction;
-import com.newland.sf.config.EventContract;
 import com.newland.sf.config.EventContractConfig;
 import com.newland.sf.model.Cdr;
 import com.newland.sf.utils.Json;
 import com.yomahub.liteflow.core.FlowExecutor;
-import com.yomahub.liteflow.flow.FlowContent;
 import com.yomahub.liteflow.flow.LiteflowResponse;
+import com.yomahub.liteflow.model.base.Event;
 import com.yomahub.liteflow.slot.ContractContext;
-import com.yomahub.liteflow.util.SpringExpressionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * 话单处理
@@ -47,49 +44,29 @@ public class CustomController {
      * @return
      */
     @PostMapping("lixian")
-    public Cdr lixian(@RequestBody Cdr cdr) {
-        LOGGER.info("CDR:{}", Json.toJson(cdr));
+    public Event lixian(@RequestBody Cdr cdr) {
+        LOGGER.info("lixian CDR:{}", Json.toJson(cdr));
 
-        List<EventContract> eventContractList = eventContractConfig.getEventContract();
-        if (CollectionUtils.isEmpty(eventContractList)) {
-            cdr.setCode("0");
-            cdr.setMsg("无事件类型与契约关系配置！");
-            return cdr;
+        // 执行契约
+        ContractContext<Cdr> contractContext = new ContractContext<>(Cdr.class);
+        cdr.setContractId("flow.el-1.0.0.xml");
+        cdr.setChainId("main");
+        contractContext.setData(cdr);
+        LiteflowResponse response = flowExecutor.execute2Resp("flow.el-1.0.0.xml", "main", null, contractContext);
+
+        Event result = ObjectUtil.cloneByStream(cdr);
+
+        if (response.isSuccess()) {
+            result.setCode("1");
+            result.setMsg("操作成功！");
+        } else {
+            result.setCode("0");
+            result.setMsg(response.getMessage());
         }
 
-        final StringBuilder contractId = new StringBuilder();
-        for (EventContract eventContract : eventContractList) {
-            if (SpringExpressionUtil.parseExpression(eventContract.getExpression(), cdr)) {
-                contractId.append(eventContract.getContractName()).append("-").append(eventContract.getVersion());
-                break;
-            }
-        }
-        if (contractId.length() == 0) {
-            cdr.setCode("0");
-            cdr.setMsg("匹配不到契约，请检查！");
-            return cdr;
-        }
+        result.setContractId("flow.el.xml");
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // TODO 契约下载
-                // 执行契约
-                ContractContext<Cdr> contractContext = new ContractContext<>(Cdr.class);
-                contractContext.setData(cdr);
-
-//                DefaultContext defaultContext = new DefaultContext();
-//                defaultContext.setData("input", cdr);
-
-                LiteflowResponse response = flowExecutor.execute2Resp(contractId.toString(), null, contractContext);
-            }
-        }).start();
-
-        cdr.setContractId(contractId.toString());
-        cdr.setCode("1");
-        cdr.setMsg("操作成功！");
-
-        return cdr;
+        return result;
     }
 
     /**
@@ -101,21 +78,13 @@ public class CustomController {
     @SLFFunction(name = "chachong", version = "1.0.0")
     @PostMapping("chachong/1.0.0")
     public Cdr chachong(@RequestBody Cdr cdr) {
-        LOGGER.info("CDR:{}", Json.toJson(cdr));
-        cdr.setChachongData("data1");
-        cdr.setCode("1");
-
-        new Thread(()->{
-            ContractContext<Cdr> contractContext = new ContractContext<>(Cdr.class);
-            contractContext.setData(cdr);
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            LiteflowResponse response = flowExecutor.execute2Resp2(cdr.getContractId(), cdr.getChainId(), cdr.getPreRunId(), cdr.getRequestId(), cdr.getStepResultMap(), contractContext);
-        }).start();
-
+        LOGGER.info("chachong CDR:{}", Json.toJson(cdr));
+        cdr.setChachongData("chachongData");
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         return cdr;
     }
 
@@ -128,20 +97,13 @@ public class CustomController {
     @SLFFunction(name = "yaosuqiuqu", version = "1.0.0")
     @PostMapping("yaosuqiuqu/1.0.0")
     public Cdr yaosuqiuqu(@RequestBody Cdr cdr) {
-        LOGGER.info("CDR:{}", Json.toJson(cdr));
-        cdr.setYaosuqiuquData("data2");
-        cdr.setCode("1");
-
-        new Thread(()->{
-            ContractContext<Cdr> contractContext = new ContractContext<>(Cdr.class);
-            contractContext.setData(cdr);
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            LiteflowResponse response = flowExecutor.execute2Resp2(cdr.getContractId(), cdr.getChainId(), cdr.getPreRunId(), cdr.getRequestId(), cdr.getStepResultMap(), contractContext);
-        }).start();
+        LOGGER.info("yaosuqiuqu CDR:{}", Json.toJson(cdr));
+        cdr.setYaosuqiuquData("yaosuqiuquData");
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         return cdr;
     }
 
@@ -154,20 +116,13 @@ public class CustomController {
     @SLFFunction(name = "pijia", version = "1.0.0")
     @PostMapping("pijia/1.0.0")
     public Cdr pijia(@RequestBody Cdr cdr) {
-        LOGGER.info("CDR:{}", Json.toJson(cdr));
-        cdr.setPijiaData("data3");
-        cdr.setCode("1");
-
-        new Thread(()->{
-            ContractContext<Cdr> contractContext = new ContractContext<>(Cdr.class);
-            contractContext.setData(cdr);
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            LiteflowResponse response = flowExecutor.execute2Resp2(cdr.getContractId(), cdr.getChainId(), cdr.getPreRunId(), cdr.getRequestId(), cdr.getStepResultMap(), contractContext);
-        }).start();
+        LOGGER.info("pijia CDR:{}", Json.toJson(cdr));
+        cdr.setPijiaData("pijiaData");
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         return cdr;
     }
 
@@ -180,20 +135,15 @@ public class CustomController {
     @SLFFunction(name = "koukuan", version = "1.0.0")
     @PostMapping("koukuan/1.0.0")
     public Cdr koukuan(@RequestBody Cdr cdr) {
-        LOGGER.info("CDR:{}", Json.toJson(cdr));
-        cdr.setKoukuanData("data4");
-        cdr.setCode("1");
+        LOGGER.info("koukuan CDR:{}", Json.toJson(cdr));
+        cdr.setKoukuanData("koukuanData");
 
-        new Thread(()->{
-            ContractContext<Cdr> contractContext = new ContractContext<>(Cdr.class);
-            contractContext.setData(cdr);
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            LiteflowResponse response = flowExecutor.execute2Resp2(cdr.getContractId(), cdr.getChainId(), cdr.getPreRunId(), cdr.getRequestId(), cdr.getStepResultMap(), contractContext);
-        }).start();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
         return cdr;
     }
 
@@ -205,8 +155,8 @@ public class CustomController {
      */
     @PostMapping("end")
     public Cdr end(@RequestBody Cdr cdr) {
-        LOGGER.info("CDR:{}", Json.toJson(cdr));
-        // 清楚会话cache
+        LOGGER.info("end CDR:{}", Json.toJson(cdr));
+        // 清除会话 TODO
         cdr.setCode("1");
         cdr.setMsg("操作成功！");
         return cdr;

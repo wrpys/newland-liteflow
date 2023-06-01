@@ -1,12 +1,15 @@
 package com.yomahub.liteflow.model.base;
 
+import java.io.Serializable;
+import java.util.Map;
+
 /**
  * 事件参数
  *
  * @author WRP
  * @since 2023/3/28
  */
-public class Event extends FlowParam {
+public class Event implements Serializable {
 
     private String eventId;
 
@@ -14,9 +17,11 @@ public class Event extends FlowParam {
 
     private String contractId;
 
-    private String funName;
+    private String chainId;
 
-    private String funVersion;
+    private String preRunId;
+
+    private Map<String, Object> stepResultMap;
 
     private String code;
 
@@ -46,20 +51,28 @@ public class Event extends FlowParam {
         this.contractId = contractId;
     }
 
-    public String getFunName() {
-        return funName;
+    public String getChainId() {
+        return chainId;
     }
 
-    public void setFunName(String funName) {
-        this.funName = funName;
+    public void setChainId(String chainId) {
+        this.chainId = chainId;
     }
 
-    public String getFunVersion() {
-        return funVersion;
+    public String getPreRunId() {
+        return preRunId;
     }
 
-    public void setFunVersion(String funVersion) {
-        this.funVersion = funVersion;
+    public void setPreRunId(String preRunId) {
+        this.preRunId = preRunId;
+    }
+
+    public Map<String, Object> getStepResultMap() {
+        return stepResultMap;
+    }
+
+    public void setStepResultMap(Map<String, Object> stepResultMap) {
+        this.stepResultMap = stepResultMap;
     }
 
     public String getCode() {
